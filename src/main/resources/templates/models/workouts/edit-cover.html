@@ -1,0 +1,36 @@
+<div th:fragment="editImageWorkoutModal">
+  <form th:action="@{/workouts/edit-image}" method="post" th:object="${workoutImageForm}" enctype="multipart/form-data">
+    <div class="modal fade" id="editImageWorkoutModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Ubah Foto Latihan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <!-- Hidden ID Workout -->
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="mb-3">
+              <label class="form-label">Pilih Foto</label>
+              <input type="file" class="form-control" th:field="*{imageFile}" id="editImageWorkoutFile" />
+
+              <div class="text-danger" th:if="${#fields.hasErrors('imageFile')}" th:errors="*{imageFile}"></div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Batal
+            </button>
+
+            <button type="submit" class="btn btn-primary" id="btnSaveImage">
+              Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

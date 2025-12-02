@@ -1,0 +1,72 @@
+<div th:fragment="addWorkoutModal">
+  <form th:action="@{/workouts/add}" method="post" th:object="${workoutForm}">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    <div class="modal fade" id="addWorkoutModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Tambah Aktivitas</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <!-- JUDUL -->
+            <div class="mb-3">
+              <label for="addWorkoutTitle" class="form-label">Nama Aktivitas</label>
+              <input id="addWorkoutTitle" type="text" class="form-control" th:field="*{title}" required />
+              <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+            </div>
+
+            <!-- DESKRIPSI -->
+            <div class="mb-3">
+              <label for="addWorkoutDescription" class="form-label">Deskripsi</label>
+              <textarea id="addWorkoutDescription" class="form-control" rows="3" th:field="*{description}"
+                required></textarea>
+              <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+            </div>
+
+            <!-- DURASI -->
+            <div class="mb-3">
+              <label for="addWorkoutDuration" class="form-label">Durasi (menit)</label>
+              <input id="addWorkoutDuration" type="number" class="form-control" th:field="*{durationMinutes}"
+                required />
+              <div class="text-danger" th:if="${#fields.hasErrors('durationMinutes')}" th:errors="*{durationMinutes}">
+              </div>
+            </div>
+
+            <!-- TIPE -->
+            <div class="mb-3">
+              <label for="addWorkoutType" class="form-label">Jenis Aktivitas</label>
+              <select id="addWorkoutType" class="form-select" th:field="*{type}" required>
+                <option value="" disabled selected>Pilih Jenis</option>
+                <option th:each="type : ${types}" th:value="${type}" th:text="${type}"></option>
+              </select>
+              <div class="text-danger" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+            </div>
+
+            <!-- KALORI (Auto) -->
+            <div class="mb-3">
+              <label class="form-label">Kalori Terbakar</label>
+              <input type="text" class="form-control" value="Dihitung otomatis berdasarkan jenis & durasi" disabled
+                readonly />
+            </div>
+
+            <!-- TANGGAL -->
+            <div class="mb-3">
+              <label for="addWorkoutDate" class="form-label">Tanggal</label>
+              <input id="addWorkoutDate" type="date" class="form-control" th:field="*{date}" required />
+              <div class="text-danger" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Batal
+            </button>
+            <button type="submit" class="btn btn-primary">Simpan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

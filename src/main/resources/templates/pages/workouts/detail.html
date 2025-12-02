@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/base}" lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workout Tracking System</title>
+</head>
+
+<body>
+  <div layout:fragment="content" class="mt-3">
+    <div class="card">
+      <div class="card-header d-flex bg-light sticky-top">
+        <div class="flex-fill">
+          <a th:href="@{/}" class="text-decoration-none">
+            <small class="text-muted"> &lt; Kembali </small>
+          </a>
+          <h3>
+            [[${workout.title}]]
+          </h3>
+          <div class="text-muted">
+            <span th:text="${#temporals.format(workout.date, 'd MMMM yyyy')}"></span>
+            &bull;
+            <span th:text="${workout.durationMinutes} + ' menit'"></span>
+            &bull;
+            <span th:text="${workout.caloriesBurned} + ' kkal'"></span>
+          </div>
+        </div>
+        <div>
+          <div>
+            <a th:href="@{/auth/logout}" class="btn btn-sm btn-danger w-100">Keluar</a>
+          </div>
+          <div class="mt-2">
+            <button class="btn btn-sm btn-warning w-100" data-bs-target="#editImageWorkoutModal" data-bs-toggle="modal">
+              Ubah Foto
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-body">
+          <div th:if="${workout.imagePath}">
+            <img th:src="@{'/workouts/image/' + ${workout.imagePath}}" alt="Foto Latihan"
+              style="max-width: 100%; max-height: 400px; object-fit: cover;" />
+          </div>
+          <div th:unless="${workout.imagePath}">
+            <span class="text-muted">Belum ada foto latihan!</span>
+          </div>
+          <hr />
+          <p style="font-size: 18px" th:text="${workout.description}"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <div th:replace="~{models/workouts/edit-cover :: editImageWorkoutModal}"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script layout:fragment="others-js">
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Cek apakah modal add perlu dibuka otomatis */
+      var editImageWorkoutModalOpen = "[[${editImageWorkoutModalOpen}]]" === "true";
+      if (editImageWorkoutModalOpen) {
+        var addModal = new bootstrap.Modal(
+          document.getElementById("editImageWorkoutModal")
+        );
+        addModal.show();
+      }
+    });
+  </script>
+</body>
+
+</html>
