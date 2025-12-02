@@ -35,13 +35,10 @@ public class WorkoutView {
 
     private final WorkoutService workoutService;
     private final FileStorageService fileStorageService;
-    private final org.delcom.app.configs.AuthContext authContext;
 
-    public WorkoutView(WorkoutService workoutService, FileStorageService fileStorageService,
-            org.delcom.app.configs.AuthContext authContext) {
+    public WorkoutView(WorkoutService workoutService, FileStorageService fileStorageService) {
         this.workoutService = workoutService;
         this.fileStorageService = fileStorageService;
-        this.authContext = authContext;
     }
 
     @ModelAttribute("workoutTypes")
@@ -56,11 +53,19 @@ public class WorkoutView {
             HttpSession session,
             Model model) {
 
-        if (!authContext.isAuthenticated()) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
             System.out.println("DEBUG: User not authenticated in postAddWorkout");
             return "redirect:/auth/logout";
         }
-        User authUser = authContext.getAuthUser();
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof User)) {
+            System.out.println("DEBUG: Principal is not User instance");
+            return "redirect:/auth/logout";
+        }
+        User authUser = (User) principal;
+
         System.out.println("DEBUG: postAddWorkout called by User ID: " + authUser.getId());
         System.out.println("DEBUG: Form Data - Title: " + workoutForm.getTitle() + ", Type: " + workoutForm.getType());
 
@@ -93,11 +98,20 @@ public class WorkoutView {
             RedirectAttributes redirectAttributes,
             HttpSession session,
             Model model) {
-        if (!authContext.isAuthenticated()) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
             System.out.println("DEBUG: User not authenticated in postEditWorkout");
             return "redirect:/auth/logout";
         }
-        User authUser = authContext.getAuthUser();
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof User)) {
+            System.out.println("DEBUG: Principal is not User instance");
+            return "redirect:/auth/logout";
+        }
+        User authUser = (User) principal;
+
         System.out.println("DEBUG: postEditWorkout called by User ID: " + authUser.getId());
         System.out.println("DEBUG: Form Data - ID: " + workoutForm.getId() + ", Title: " + workoutForm.getTitle());
 
@@ -131,17 +145,15 @@ public class WorkoutView {
             HttpSession session,
             Model model) {
 
-        // Autentikasi user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
             return "redirect:/auth/logout";
         }
-
         Object principal = authentication.getPrincipal();
         if (!(principal instanceof User)) {
             return "redirect:/auth/logout";
         }
-
         User authUser = (User) principal;
 
         // Validasi form
@@ -178,9 +190,9 @@ public class WorkoutView {
 
     @GetMapping("/{workoutId}")
     public String getDetailWorkout(@PathVariable UUID workoutId, Model model) {
-        // Autentikasi user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
             return "redirect:/auth/logout";
         }
         Object principal = authentication.getPrincipal();
@@ -202,7 +214,7 @@ public class WorkoutView {
         workoutImageForm.setId(workoutId);
         model.addAttribute("workoutImageForm", workoutImageForm);
 
-        return ConstUtil.TEMPLATE_PAGES_WORKOUTS_DETAIL; // Note: You might want to rename this template too
+        return ConstUtil.TEMPLATE_PAGES_WORKOUTS_DETAIL;
     }
 
     @PostMapping("/edit-image")
@@ -211,9 +223,9 @@ public class WorkoutView {
             HttpSession session,
             Model model) {
 
-        // Autentikasi user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ((authentication instanceof AnonymousAuthenticationToken)) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
             return "redirect:/auth/logout";
         }
         Object principal = authentication.getPrincipal();
