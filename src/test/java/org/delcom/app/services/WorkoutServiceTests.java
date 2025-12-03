@@ -90,7 +90,10 @@ public class WorkoutServiceTests {
         // Atur perilaku mock
         lenient().when(workoutRepository.save(any(Workout.class))).thenReturn(workout);
         lenient().when(workoutRepository.findByKeyword(userId, "Lari")).thenReturn(java.util.List.of(workout));
-        lenient().when(workoutRepository.findAllByUserId(userId)).thenReturn(java.util.List.of(workout));
+        lenient()
+                .when(workoutRepository.findByUserId(any(UUID.class),
+                        any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(java.util.List.of(workout)));
         lenient().when(workoutRepository.findByUserIdAndId(userId, workoutId))
                 .thenReturn(java.util.Optional.of(workout));
         lenient().when(workoutRepository.findByUserIdAndId(userId, nonexistentWorkoutId))
@@ -317,16 +320,17 @@ public class WorkoutServiceTests {
     @Test
     void testGetAllWorkouts_InvalidType_ShouldReturnAll() {
         UUID userId = UUID.randomUUID();
-        // Mock repository to return list when findAllByUserId is called (fallback)
-        when(workoutRepository.findAllByUserId(userId)).thenReturn(java.util.List.of(new Workout()));
+        // Mock repository to return list when findByUserId is called (fallback)
+        when(workoutRepository.findByUserId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(java.util.List.of(new Workout())));
 
         // Call with invalid type
         var result = workoutService.getAllWorkouts(userId, null, "INVALID_TYPE");
 
-        // Should catch exception and call findAllByUserId
+        // Should catch exception and call findByUserId
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(workoutRepository).findAllByUserId(userId);
+        verify(workoutRepository).findByUserId(any(UUID.class), any(org.springframework.data.domain.Pageable.class));
     }
 
     @Test
@@ -364,13 +368,18 @@ public class WorkoutServiceTests {
     void testGetAllWorkouts_NoFilter() {
         UUID userId = UUID.randomUUID();
 
+        // Mock behavior for findByUserId
+        when(workoutRepository.findByUserId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(org.springframework.data.domain.Page.empty());
+
         // Case 1: Null type
         workoutService.getAllWorkouts(userId, null, null);
-        verify(workoutRepository).findAllByUserId(userId);
+        verify(workoutRepository).findByUserId(any(UUID.class), any(org.springframework.data.domain.Pageable.class));
 
         // Case 2: Empty type
         workoutService.getAllWorkouts(userId, null, "");
-        verify(workoutRepository, Mockito.times(2)).findAllByUserId(userId);
+        verify(workoutRepository, Mockito.times(2)).findByUserId(any(UUID.class),
+                any(org.springframework.data.domain.Pageable.class));
     }
 
     @Test
