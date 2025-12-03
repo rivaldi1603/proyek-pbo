@@ -140,37 +140,53 @@ public class WorkoutService {
     }
 
     public java.util.Map<String, Object> getChartData(UUID userId) {
-        // Daily Duration Stats
-        List<Object[]> dailyStats = workoutRepository.findDailyDurationStats(userId);
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+
+        // --- A. Proses Daily Stats (Duration) ---
+        List<Object[]> dailyRows = workoutRepository.findDailyDurationStats(userId);
         List<String> dailyLabels = new java.util.ArrayList<>();
-        List<Long> dailyData = new java.util.ArrayList<>();
+        List<Integer> dailyData = new java.util.ArrayList<>();
 
-        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMM");
-
-        for (Object[] row : dailyStats) {
-            LocalDate date = (LocalDate) row[0];
-            Long duration = (Long) row[1];
-            dailyLabels.add(date.format(formatter));
-            dailyData.add(duration);
+        if (dailyRows != null) {
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMM");
+            for (Object[] row : dailyRows) {
+                if (row[0] != null) {
+                    LocalDate date = (LocalDate) row[0];
+                    dailyLabels.add(date.format(formatter));
+                }
+                if (row[1] != null) {
+                    dailyData.add(((Number) row[1]).intValue());
+                }
+            }
         }
 
-        // Type Stats
-        List<Object[]> typeStats = workoutRepository.findTypeStats(userId);
+        java.util.Map<String, Object> durationChartMap = new java.util.HashMap<>();
+        durationChartMap.put("labels", dailyLabels);
+        durationChartMap.put("data", dailyData);
+        result.put("duration", durationChartMap);
+
+        // --- B. Proses Type Stats (Count) ---
+        List<Object[]> typeRows = workoutRepository.findTypeStats(userId);
         List<String> typeLabels = new java.util.ArrayList<>();
-        List<Long> typeData = new java.util.ArrayList<>();
+        List<Integer> typeData = new java.util.ArrayList<>();
 
-        for (Object[] row : typeStats) {
-            org.delcom.app.enums.WorkoutType type = (org.delcom.app.enums.WorkoutType) row[0];
-            Long count = (Long) row[1];
-            typeLabels.add(type.name());
-            typeData.add(count);
+        if (typeRows != null) {
+            for (Object[] row : typeRows) {
+                if (row[0] != null) {
+                    typeLabels.add(row[0].toString());
+                }
+                if (row[1] != null) {
+                    typeData.add(((Number) row[1]).intValue());
+                }
+            }
         }
 
-        return java.util.Map.of(
-                "dailyLabels", dailyLabels,
-                "dailyData", dailyData,
-                "typeLabels", typeLabels,
-                "typeData", typeData);
+        java.util.Map<String, Object> typeChartMap = new java.util.HashMap<>();
+        typeChartMap.put("labels", typeLabels);
+        typeChartMap.put("data", typeData);
+        result.put("type", typeChartMap);
+
+        return result;
     }
 
     @Transactional
