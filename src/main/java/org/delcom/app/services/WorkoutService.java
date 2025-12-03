@@ -139,6 +139,40 @@ public class WorkoutService {
         return (double) (durationMinutes * multiplier);
     }
 
+    public java.util.Map<String, Object> getChartData(UUID userId) {
+        // Daily Duration Stats
+        List<Object[]> dailyStats = workoutRepository.findDailyDurationStats(userId);
+        List<String> dailyLabels = new java.util.ArrayList<>();
+        List<Long> dailyData = new java.util.ArrayList<>();
+
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMM");
+
+        for (Object[] row : dailyStats) {
+            LocalDate date = (LocalDate) row[0];
+            Long duration = (Long) row[1];
+            dailyLabels.add(date.format(formatter));
+            dailyData.add(duration);
+        }
+
+        // Type Stats
+        List<Object[]> typeStats = workoutRepository.findTypeStats(userId);
+        List<String> typeLabels = new java.util.ArrayList<>();
+        List<Long> typeData = new java.util.ArrayList<>();
+
+        for (Object[] row : typeStats) {
+            org.delcom.app.enums.WorkoutType type = (org.delcom.app.enums.WorkoutType) row[0];
+            Long count = (Long) row[1];
+            typeLabels.add(type.name());
+            typeData.add(count);
+        }
+
+        return java.util.Map.of(
+                "dailyLabels", dailyLabels,
+                "dailyData", dailyData,
+                "typeLabels", typeLabels,
+                "typeData", typeData);
+    }
+
     @Transactional
     public boolean deleteWorkout(UUID userId, UUID id) {
         Workout workout = workoutRepository.findByUserIdAndId(userId, id).orElse(null);

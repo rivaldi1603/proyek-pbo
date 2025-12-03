@@ -155,7 +155,7 @@ public class WorkoutView {
     }
 
     @PostMapping("/delete")
-    public String postDeleteWorkout(@Valid @ModelAttribute("workoutForm") WorkoutForm workoutForm,
+    public String postDeleteWorkout(@ModelAttribute("workoutForm") WorkoutForm workoutForm,
             RedirectAttributes redirectAttributes,
             HttpSession session,
             Model model) {

@@ -40,6 +40,13 @@ public class HomeView {
         var stats = workoutService.getDashboardStats(authUser.getId());
         model.addAttribute("stats", stats);
 
+        // Chart Data
+        var chartData = workoutService.getChartData(authUser.getId());
+        model.addAttribute("dailyLabels", chartData.get("dailyLabels"));
+        model.addAttribute("dailyData", chartData.get("dailyData"));
+        model.addAttribute("typeLabels", chartData.get("typeLabels"));
+        model.addAttribute("typeData", chartData.get("typeData"));
+
         // Workouts
         var workouts = workoutService.getAllWorkouts(authUser.getId(), "", filterType);
         model.addAttribute("workouts", workouts);

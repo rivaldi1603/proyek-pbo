@@ -49,6 +49,31 @@
           </div>
         </div>
 
+        <div class="row mb-4">
+          <!-- Chart Tren Durasi -->
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header">
+                Tren Durasi Harian
+              </div>
+              <div class="card-body">
+                <canvas id="durationChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <!-- Chart Jenis Workout -->
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                Jenis Workout
+              </div>
+              <div class="card-body">
+                <canvas id="typeChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="d-flex mb-2 align-items-center">
           <div class="flex-fill">
             <h3>Daftar Aktivitas Fisik</h3>
@@ -120,6 +145,80 @@
 
   <!-- Scripts -->
   <script layout:fragment="others-js">
+    /* Chart.js CDN */
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+    script.onload = function () {
+      initCharts();
+    };
+    document.head.appendChild(script);
+
+    function initCharts() {
+      /* Ambil data dari Thymeleaf */
+      const dailyLabels = [[${ dailyLabels }]];
+      const dailyData = [[${ dailyData }]];
+      const typeLabels = [[${ typeLabels }]];
+      const typeData = [[${ typeData }]];
+
+      /* Chart Durasi (Line/Bar) */
+      const ctxDuration = document.getElementById('durationChart').getContext('2d');
+      new Chart(ctxDuration, {
+        type: 'line',
+        data: {
+          labels: dailyLabels,
+          datasets: [{
+            label: 'Total Durasi (menit)',
+            data: dailyData,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      /* Chart Tipe (Doughnut) */
+      const ctxType = document.getElementById('typeChart').getContext('2d');
+      new Chart(ctxType, {
+        type: 'doughnut',
+        data: {
+          labels: typeLabels,
+          datasets: [{
+            data: typeData,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.7)',
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(153, 102, 255, 0.7)',
+              'rgba(255, 159, 64, 0.7)'
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true
+        }
+      });
+    }
+
     function prepareEditWorkout(id, title, description, duration, type, date) {
       /* Set nilai pada form edit */
       document.getElementById("editWorkoutId").value = id;
