@@ -151,8 +151,14 @@ public class WorkoutService {
             java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMM");
             for (Object[] row : dailyRows) {
                 if (row[0] != null) {
-                    LocalDate date = (LocalDate) row[0];
-                    dailyLabels.add(date.format(formatter));
+                    // Handle potential different Date types (java.sql.Date vs LocalDate)
+                    if (row[0] instanceof java.sql.Date) {
+                        dailyLabels.add(((java.sql.Date) row[0]).toLocalDate().format(formatter));
+                    } else if (row[0] instanceof LocalDate) {
+                        dailyLabels.add(((LocalDate) row[0]).format(formatter));
+                    } else {
+                        dailyLabels.add(row[0].toString());
+                    }
                 }
                 if (row[1] != null) {
                     dailyData.add(((Number) row[1]).intValue());

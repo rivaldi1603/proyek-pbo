@@ -141,6 +141,22 @@
     <div th:replace="~{models/workouts/add :: addWorkoutModal}"></div>
     <div th:replace="~{models/workouts/edit :: editWorkoutModal}"></div>
     <div th:replace="~{models/workouts/delete :: deleteWorkoutModal}"></div>
+    <!-- Debug Section (Hidden by default, toggleable) -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <button class="btn btn-sm btn-outline-secondary mb-2" type="button" data-bs-toggle="collapse"
+          data-bs-target="#debugInfo">
+          Toggle Debug Info
+        </button>
+        <div class="collapse" id="debugInfo">
+          <div class="card card-body bg-light">
+            <pre id="apiResponseDebug">Loading API data...</pre>
+            <div id="chartStatusDebug">Checking Chart.js...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Scripts -->
@@ -149,22 +165,29 @@
     const script = document.createElement('script');
     script.src = "https://cdn.jsdelivr.net/npm/chart.js";
     script.onload = function () {
+      document.getElementById('chartStatusDebug').innerText = "Chart.js loaded successfully.";
       initCharts();
+    };
+    script.onerror = function () {
+      document.getElementById('chartStatusDebug').innerText = "Failed to load Chart.js CDN.";
     };
     document.head.appendChild(script);
 
     function initCharts() {
       const ctxDuration = document.getElementById('durationChart');
       const ctxType = document.getElementById('typeChart');
+      const debugPre = document.getElementById('apiResponseDebug');
 
       // Hanya jalan jika elemen canvas ada di halaman
       if (ctxDuration && ctxType) {
         fetch('/api/workouts/stats')
           .then(response => {
-            if (!response.ok) throw new Error("Gagal mengambil data chart API");
+            if (!response.ok) throw new Error("Gagal mengambil data chart API: " + response.status);
             return response.json();
           })
           .then(data => {
+            debugPre.innerText = JSON.stringify(data, null, 2); // Show raw JSON
+
             if (data.status === 'success') {
               const stats = data.data;
 
@@ -218,13 +241,18 @@
 
             } else {
               console.error('Gagal mengambil data statistik:', data.message);
+              debugPre.innerText += "\nError: " + data.message;
             }
           })
           .catch(error => {
             console.error("Error loading charts:", error);
+            debugPre.innerText += "\nFetch Error: " + error.message;
           });
+      } else {
+        debugPre.innerText = "Canvas elements not found.";
       }
     }
+
 
     function prepareEditWorkout(id, title, description, duration, type, date) {
       /* Set nilai pada form edit */

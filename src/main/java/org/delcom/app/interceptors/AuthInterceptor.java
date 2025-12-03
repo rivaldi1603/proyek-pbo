@@ -35,7 +35,20 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // Ambil bearer token dari header
+        // 1. Cek Session Auth (Spring Security) - Prioritas untuk akses via Browser
+        org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof User) {
+                authContext.setAuthUser((User) principal);
+                return true; // Lolos via Session
+            }
+        }
+
+        // 2. Cek Bearer Token (jika tidak ada session)
         String rawAuthToken = request.getHeader("Authorization");
         String token = extractToken(rawAuthToken);
 
