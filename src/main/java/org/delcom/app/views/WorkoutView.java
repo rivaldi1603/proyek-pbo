@@ -79,10 +79,17 @@ public class WorkoutView {
         }
 
         // Simpan workout
-        var entity = workoutService.createWorkout(workoutForm, authUser.getId());
+        try {
+            var entity = workoutService.createWorkout(workoutForm, authUser.getId());
 
-        if (entity == null) {
-            redirectAttributes.addFlashAttribute("error", "Gagal menambahkan workout");
+            if (entity == null) {
+                redirectAttributes.addFlashAttribute("error", "Gagal menambahkan workout");
+                redirectAttributes.addFlashAttribute("addWorkoutModalOpen", true);
+                return "redirect:/";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Terjadi kesalahan sistem: " + e.getMessage());
             redirectAttributes.addFlashAttribute("addWorkoutModalOpen", true);
             return "redirect:/";
         }
@@ -126,9 +133,17 @@ public class WorkoutView {
         }
 
         // Update workout
-        var updated = workoutService.updateWorkout(workoutForm, authUser.getId());
-        if (updated == null) {
-            redirectAttributes.addFlashAttribute("error", "Gagal memperbarui workout");
+        try {
+            var updated = workoutService.updateWorkout(workoutForm, authUser.getId());
+            if (updated == null) {
+                redirectAttributes.addFlashAttribute("error", "Gagal memperbarui workout");
+                redirectAttributes.addFlashAttribute("editWorkoutModalOpen", true);
+                redirectAttributes.addFlashAttribute("editWorkoutModalId", workoutForm.getId());
+                return "redirect:/";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Terjadi kesalahan sistem: " + e.getMessage());
             redirectAttributes.addFlashAttribute("editWorkoutModalOpen", true);
             redirectAttributes.addFlashAttribute("editWorkoutModalId", workoutForm.getId());
             return "redirect:/";

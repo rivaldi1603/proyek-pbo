@@ -132,8 +132,6 @@ public class WorkoutService {
                 multiplier = 4;
                 break;
             case STRETCHING:
-                multiplier = 3;
-                break;
             default:
                 multiplier = 3;
                 break;

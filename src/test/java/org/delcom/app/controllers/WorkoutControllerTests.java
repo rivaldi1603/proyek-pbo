@@ -54,9 +54,19 @@ public class WorkoutControllerTests {
                 List<WorkoutForm> invalidWorkouts = List.of(
                         // Title Null
                         createWorkoutForm(null, "Deskripsi valid", 30, "RUNNING", date),
-                        // Calories Null
+                        // Title Empty
+                        createWorkoutForm("", "Deskripsi valid", 30, "RUNNING", date),
+                        // Description Null
+                        createWorkoutForm("Judul valid", null, 30, "RUNNING", date),
+                        // Description Empty
+                        createWorkoutForm("Judul valid", "", 30, "RUNNING", date),
+                        // Duration Null
+                        createWorkoutForm("Judul valid", "Deskripsi valid", null, "RUNNING", date),
+                        // Duration Invalid
+                        createWorkoutForm("Judul valid", "Deskripsi valid", 0, "RUNNING", date),
+                        // Type Null
                         createWorkoutForm("Judul valid", "Deskripsi valid", 30, null, date),
-                        // Calories Invalid (Type Empty)
+                        // Type Empty
                         createWorkoutForm("Judul valid", "Deskripsi valid", 30, "", date),
                         // Date Null
                         createWorkoutForm("Judul valid", "Deskripsi valid", 30, "RUNNING", null));
@@ -85,6 +95,14 @@ public class WorkoutControllerTests {
             {
                 workoutController.authContext.setAuthUser(authUser);
                 WorkoutForm form = createWorkoutForm("Title", "Desc", 30, "RUNNING", date);
+
+                Workout createdWorkout = new Workout(userId, "Title", "Desc", 30, 300.0, date, WorkoutType.RUNNING,
+                        null);
+                createdWorkout.setId(workoutId);
+                when(workoutService.createWorkout(any(UUID.class), any(String.class), any(String.class),
+                        any(Integer.class), any(String.class), any(LocalDate.class)))
+                        .thenReturn(createdWorkout);
+
                 var result = workoutController.createWorkout(form);
                 assert (result != null);
                 assert (result.getBody().getStatus().equals("success"));
