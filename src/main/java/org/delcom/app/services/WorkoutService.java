@@ -57,7 +57,7 @@ public class WorkoutService {
         if (search != null && !search.trim().isEmpty()) {
             return workoutRepository.findByKeyword(userId, search);
         }
-        return workoutRepository.findAllByUserId(userId);
+        return workoutRepository.findByUserId(userId, org.springframework.data.domain.Pageable.unpaged()).getContent();
     }
 
     public java.util.Map<String, Object> getDashboardStats(UUID userId) {

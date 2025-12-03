@@ -161,4 +161,21 @@ public class WorkoutController {
                 "Data workout berhasil dihapus",
                 null));
     }
+
+    // API Endpoint untuk Chart Data
+    // -------------------------------
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getChartData() {
+        // Validasi autentikasi
+        if (!authContext.isAuthenticated()) {
+            return ResponseEntity.status(403).body(new ApiResponse<>("fail", "User tidak terautentikasi", null));
+        }
+        User authUser = authContext.getAuthUser();
+
+        Map<String, Object> chartData = workoutService.getChartData(authUser.getId());
+        return ResponseEntity.ok(new ApiResponse<>(
+                "success",
+                "Data statistik berhasil diambil",
+                chartData));
+    }
 }
