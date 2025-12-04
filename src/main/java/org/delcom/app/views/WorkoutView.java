@@ -75,7 +75,7 @@ public class WorkoutView {
             model.addAttribute("workouts", workoutService.getAllWorkouts(authUser.getId(), "", null));
             model.addAttribute("stats", workoutService.getDashboardStats(authUser.getId()));
             model.addAttribute("addWorkoutModalOpen", true);
-            return ConstUtil.TEMPLATE_PAGES_HOME;
+            return "pages/activities";
         }
 
         // Simpan workout
@@ -85,18 +85,18 @@ public class WorkoutView {
             if (entity == null) {
                 redirectAttributes.addFlashAttribute("error", "Gagal menambahkan workout");
                 redirectAttributes.addFlashAttribute("addWorkoutModalOpen", true);
-                return "redirect:/";
+                return "redirect:/activities";
             }
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Terjadi kesalahan sistem: " + e.getMessage());
             redirectAttributes.addFlashAttribute("addWorkoutModalOpen", true);
-            return "redirect:/";
+            return "redirect:/activities";
         }
 
         // Redirect dengan pesan sukses
         redirectAttributes.addFlashAttribute("success", "Workout berhasil ditambahkan.");
-        return "redirect:/";
+        return "redirect:/activities";
     }
 
     @PostMapping("/edit")
@@ -129,7 +129,7 @@ public class WorkoutView {
             model.addAttribute("stats", workoutService.getDashboardStats(authUser.getId()));
             model.addAttribute("editWorkoutModalOpen", true);
             model.addAttribute("editWorkoutModalId", workoutForm.getId());
-            return ConstUtil.TEMPLATE_PAGES_HOME;
+            return "pages/activities";
         }
 
         // Update workout
@@ -139,14 +139,14 @@ public class WorkoutView {
                 redirectAttributes.addFlashAttribute("error", "Gagal memperbarui workout");
                 redirectAttributes.addFlashAttribute("editWorkoutModalOpen", true);
                 redirectAttributes.addFlashAttribute("editWorkoutModalId", workoutForm.getId());
-                return "redirect:/";
+                return "redirect:/activities";
             }
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Terjadi kesalahan sistem: " + e.getMessage());
             redirectAttributes.addFlashAttribute("editWorkoutModalOpen", true);
             redirectAttributes.addFlashAttribute("editWorkoutModalId", workoutForm.getId());
-            return "redirect:/";
+            return "redirect:/activities";
         }
 
         // Redirect dengan pesan sukses
@@ -175,7 +175,7 @@ public class WorkoutView {
         if (workoutForm.getId() == null) {
             redirectAttributes.addFlashAttribute("error", "ID workout tidak valid");
             redirectAttributes.addFlashAttribute("deleteWorkoutModalOpen", true);
-            return "redirect:/";
+            return "redirect:/activities";
         }
 
         // Periksa apakah workout tersedia
@@ -200,7 +200,7 @@ public class WorkoutView {
 
         // Redirect dengan pesan sukses
         redirectAttributes.addFlashAttribute("success", "Workout berhasil dihapus.");
-        return "redirect:/";
+        return "redirect:/activities";
     }
 
     @GetMapping("/{workoutId}")

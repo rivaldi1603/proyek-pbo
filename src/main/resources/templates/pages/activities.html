@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/base}" lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aktivitas Fisik - Workout Tracking System</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="mt-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
+                <div class="d-flex align-items-center">
+                    <a th:href="@{/}" class="btn btn-link text-decoration-none me-2 p-0">
+                        <i class="bi bi-arrow-left fs-4"></i>
+                    </a>
+                    <h4 class="mb-0 fw-bold text-primary">Aktivitas Fisik</h4>
+                </div>
+                <div class="dropdown">
+                    <button
+                        class="btn btn-light dropdown-toggle d-flex align-items-center gap-2 border shadow-sm rounded-pill px-3 py-2"
+                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img th:if="${auth.profilePhoto != null}" th:src="@{'/uploads/' + ${auth.profilePhoto}}"
+                            class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                        <img th:unless="${auth.profilePhoto != null}"
+                            src="https://ui-avatars.com/api/?name=User&background=random&size=32" class="rounded-circle"
+                            style="width: 32px; height: 32px; object-fit: cover;">
+                        <span class="fw-semibold" th:text="${auth.name}">User</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                        <li><a class="dropdown-item py-2" th:href="@{/profile}"><i
+                                    class="bi bi-person-circle me-2 text-primary"></i>Profil Saya</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item py-2 text-danger" th:href="@{/auth/logout}"><i
+                                    class="bi bi-box-arrow-right me-2"></i>Keluar</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Latihan</h5>
+                                <p class="card-text h2" th:text="${stats.totalWorkouts}">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Durasi</h5>
+                                <p class="card-text h2"><span th:text="${stats.totalDuration}">0</span> menit</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-warning text-dark">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Kalori</h5>
+                                <p class="card-text h2"><span th:text="${stats.totalCalories}">0</span> kkal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <!-- Chart Tren Durasi -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                Tren Durasi Harian
+                            </div>
+                            <div class="card-body">
+                                <canvas id="durationChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Chart Jenis Workout -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                Jenis Workout
+                            </div>
+                            <div class="card-body">
+                                <canvas id="typeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-2 align-items-center">
+                    <div class="flex-fill">
+                        <h3>Daftar Aktivitas Fisik</h3>
+                    </div>
+                    <div class="me-2">
+                        <form th:action="@{/activities}" method="get" class="d-flex">
+                            <select name="filterType" class="form-select me-2">
+                                <option value="">Semua Jenis</option>
+                                <option th:each="type : ${types}" th:value="${type}" th:text="${type}"
+                                    th:selected="${param.filterType != null and param.filterType[0] == type.name()}">
+                                </option>
+                            </select>
+                            <button type="submit" class="btn btn-secondary">Filter</button>
+                        </form>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWorkoutModal">
+                            Tambah Aktivitas
+                        </button>
+                    </div>
+                </div>
+                <table class="table table-striped">
+                    <tr class="table-light">
+                        <th>No</th>
+                        <th>Jenis</th>
+                        <th>Judul</th>
+                        <th>Tanggal</th>
+                        <th>Durasi (menit)</th>
+                        <th>Kalori</th>
+                        <th>Tindakan</th>
+                    </tr>
+
+                    <tr th:each="workout, status : ${workouts}">
+                        <td th:text="${status.index + 1}"></td>
+                        <td th:text="${workout.type}"></td>
+                        <td th:text="${workout.title}"></td>
+                        <td th:text="${#temporals.format(workout.date, 'd MMMM yyyy')}"></td>
+                        <td th:text="${workout.durationMinutes}"></td>
+                        <td th:text="${workout.caloriesBurned}"></td>
+                        <td>
+                            <a th:href="@{/workouts/{workoutId}(workoutId=${workout.id})}" class="btn btn-sm btn-info">
+                                Detail
+                            </a>
+                            <button th:id="|editWorkoutButton_${workout.id}|"
+                                th:attr="onclick=|prepareEditWorkout(`${workout.id}`, `${workout.title}`, `${workout.description}`, `${workout.durationMinutes}`, `${workout.type}`, `${workout.date}`)|"
+                                class="btn btn-sm btn-warning">
+                                Edit
+                            </button>
+                            <button th:id="|deleteWorkoutButton_${workout.id}|"
+                                th:attr="onclick=|prepareDeleteWorkout(`${workout.id}`, `${workout.title}`)|"
+                                class="btn btn-sm btn-danger">
+                                Hapus
+                            </button>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(workouts)}">
+                        <td colspan="7" class="text-center">
+                            Belum ada data aktivitas fisik yang tersedia.
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div th:replace="~{models/workouts/add :: addWorkoutModal}"></div>
+        <div th:replace="~{models/workouts/edit :: editWorkoutModal}"></div>
+        <div th:replace="~{models/workouts/delete :: deleteWorkoutModal}"></div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script layout:fragment="others-js">
+        /* Chart.js CDN */
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+        script.onload = function () {
+            initCharts();
+        };
+        document.head.appendChild(script);
+
+        function initCharts() {
+            const ctxDuration = document.getElementById('durationChart');
+            const ctxType = document.getElementById('typeChart');
+
+            // Hanya jalan jika elemen canvas ada di halaman
+            if (ctxDuration && ctxType) {
+                fetch('/api/workouts/stats')
+                    .then(response => {
+                        if (!response.ok) throw new Error("Gagal mengambil data chart API: " + response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            const stats = data.data;
+
+                            // 2. Render Grafik Durasi (Line Chart)
+                            new Chart(ctxDuration.getContext('2d'), {
+                                type: 'line', // Pakai Line agar terlihat tren harian
+                                data: {
+                                    labels: stats.duration.labels, // Tanggal
+                                    datasets: [{
+                                        label: 'Total Durasi (Menit)',
+                                        data: stats.duration.data, // Total Durasi
+                                        borderColor: '#0d6efd',
+                                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                                        fill: true,
+                                        tension: 0.3
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            title: {
+                                                display: true,
+                                                text: 'Menit'
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+
+                            // 3. Render Grafik Tipe (Doughnut Chart)
+                            new Chart(ctxType.getContext('2d'), {
+                                type: 'doughnut',
+                                data: {
+                                    labels: stats.type.labels, // Jenis Latihan
+                                    datasets: [{
+                                        data: stats.type.data, // Jumlah Latihan
+                                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {
+                                            position: 'right'
+                                        }
+                                    }
+                                }
+                            });
+
+                        } else {
+                            console.error('Gagal mengambil data statistik:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error loading charts:", error);
+                    });
+            }
+        }
+
+
+        function prepareEditWorkout(id, title, description, duration, type, date) {
+            /* Set nilai pada form edit */
+            document.getElementById("editWorkoutId").value = id;
+            document.getElementById("editWorkoutTitle").value = title;
+            document.getElementById("editWorkoutDescription").value = description;
+            document.getElementById("editWorkoutDuration").value = duration;
+            document.getElementById("editWorkoutType").value = type;
+            document.getElementById("editWorkoutDate").value = date;
+
+            /* Tampilkan modal */
+            var editModal = new bootstrap.Modal(
+                document.getElementById("editWorkoutModal")
+            );
+            editModal.show();
+        }
+
+        function prepareDeleteWorkout(id, title) {
+            /* Set nilai pada form delete */
+            document.getElementById("deleteWorkoutId").value = id;
+            document.getElementById("deleteWorkoutTitle").innerText = title;
+
+            /* Tampilkan modal */
+            var deleteModal = new bootstrap.Modal(
+                document.getElementById("deleteWorkoutModal")
+            );
+            deleteModal.show();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            /* Cek apakah modal add perlu dibuka otomatis */
+            var addWorkoutModalOpen = "[[${addWorkoutModalOpen}]]" === "true";
+            if (addWorkoutModalOpen) {
+                var addModal = new bootstrap.Modal(
+                    document.getElementById("addWorkoutModal")
+                );
+                addModal.show();
+            }
+
+            /* Cek apakah modal edit perlu dibuka otomatis */
+            var editWorkoutModalOpen = "[[${editWorkoutModalOpen}]]" === "true";
+            if (editWorkoutModalOpen) {
+                const editWorkoutModalId = "[[${editWorkoutModalId}]]";
+                const buttonEdit = document.getElementById(
+                    `editWorkoutButton_${editWorkoutModalId}`
+                );
+                if (buttonEdit) {
+                    buttonEdit.click();
+                }
+            }
+
+            /* Cek apakah modal delete perlu dibuka otomatis */
+            var deleteWorkoutModalOpen = "[[${deleteWorkoutModalOpen}]]" === "true";
+            if (deleteWorkoutModalOpen) {
+                const deleteWorkoutModalId = "[[${deleteWorkoutModalId}]]";
+                const buttonDelete = document.getElementById(
+                    `deleteWorkoutButton_${deleteWorkoutModalId}`
+                );
+                if (buttonDelete) {
+                    buttonDelete.click();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

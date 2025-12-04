@@ -21,7 +21,25 @@ public class HomeView {
     }
 
     @GetMapping
-    public String home(Model model,
+    public String home(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if ((authentication instanceof AnonymousAuthenticationToken)) {
+            return "redirect:/auth/logout";
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof User)) {
+            return "redirect:/auth/logout";
+        }
+
+        User authUser = (User) principal;
+        model.addAttribute("auth", authUser);
+
+        return ConstUtil.TEMPLATE_PAGES_HOME;
+    }
+
+    @GetMapping("/activities")
+    public String activities(Model model,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String filterType) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if ((authentication instanceof AnonymousAuthenticationToken)) {
@@ -40,13 +58,6 @@ public class HomeView {
         var stats = workoutService.getDashboardStats(authUser.getId());
         model.addAttribute("stats", stats);
 
-        // Chart Data (Fetched via API)
-        // var chartData = workoutService.getChartData(authUser.getId());
-        // model.addAttribute("dailyLabels", chartData.get("dailyLabels"));
-        // model.addAttribute("dailyData", chartData.get("dailyData"));
-        // model.addAttribute("typeLabels", chartData.get("typeLabels"));
-        // model.addAttribute("typeData", chartData.get("typeData"));
-
         // Workouts
         var workouts = workoutService.getAllWorkouts(authUser.getId(), "", filterType);
         model.addAttribute("workouts", workouts);
@@ -55,6 +66,6 @@ public class HomeView {
         model.addAttribute("workoutForm", new WorkoutForm());
         model.addAttribute("types", org.delcom.app.enums.WorkoutType.values());
 
-        return ConstUtil.TEMPLATE_PAGES_HOME;
+        return "pages/activities";
     }
 }

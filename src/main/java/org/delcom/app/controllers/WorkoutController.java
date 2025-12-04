@@ -43,7 +43,7 @@ public class WorkoutController {
             return ResponseEntity.badRequest().body(new ApiResponse<>("fail", "Data title tidak valid", null));
         } else if (reqWorkout.getDescription() == null || reqWorkout.getDescription().isEmpty()) {
             return ResponseEntity.badRequest().body(new ApiResponse<>("fail", "Data description tidak valid", null));
-        } else if (reqWorkout.getDurationMinutes() == null || reqWorkout.getDurationMinutes() <= 0) {
+        } else if (reqWorkout.getDurationMinutes() == null || reqWorkout.getDurationMinutes() < 0) {
             return ResponseEntity.badRequest()
                     .body(new ApiResponse<>("fail", "Data durationMinutes tidak valid", null));
         } else if (reqWorkout.getType() == null || reqWorkout.getType().isEmpty()) {
@@ -116,7 +116,7 @@ public class WorkoutController {
             return ResponseEntity.badRequest().body(new ApiResponse<>("fail", "Data title tidak valid", null));
         } else if (reqWorkout.getDescription() == null || reqWorkout.getDescription().isEmpty()) {
             return ResponseEntity.badRequest().body(new ApiResponse<>("fail", "Data description tidak valid", null));
-        } else if (reqWorkout.getDurationMinutes() == null || reqWorkout.getDurationMinutes() <= 0) {
+        } else if (reqWorkout.getDurationMinutes() == null || reqWorkout.getDurationMinutes() < 0) {
             return ResponseEntity.badRequest()
                     .body(new ApiResponse<>("fail", "Data durationMinutes tidak valid", null));
         } else if (reqWorkout.getType() == null || reqWorkout.getType().isEmpty()) {

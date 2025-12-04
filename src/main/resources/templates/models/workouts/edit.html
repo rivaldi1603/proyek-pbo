@@ -31,7 +31,7 @@
             <!-- DURASI -->
             <div class="mb-3">
               <label for="editWorkoutDuration" class="form-label">Durasi (menit)</label>
-              <input id="editWorkoutDuration" type="number" class="form-control" th:field="*{durationMinutes}"
+              <input id="editWorkoutDuration" type="number" class="form-control" th:field="*{durationMinutes}" min="0"
                 required />
               <div class="text-danger" th:if="${#fields.hasErrors('durationMinutes')}" th:errors="*{durationMinutes}">
               </div>

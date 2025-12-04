@@ -17,7 +17,7 @@ public class WorkoutForm {
     private String description;
 
     @NotNull(message = "Durasi tidak boleh kosong")
-    @Min(value = 5, message = "Durasi minimal 5 menit")
+    @Min(value = 0, message = "Durasi tidak boleh negatif")
     private Integer durationMinutes;
 
     @NotNull(message = "Pilih jenis aktivitas")
