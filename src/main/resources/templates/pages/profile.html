@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/base}" lang="id">
+
+<head>
+    <title>Profil Pengguna</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="container py-5">
+        <div class="row g-4">
+            <!-- Bagian 1: Informasi Pengguna (Read-Only) -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-4 position-relative d-inline-block">
+                            <img th:if="${user.profilePhoto != null}" th:src="@{'/uploads/' + ${user.profilePhoto}}"
+                                class="rounded-circle img-thumbnail shadow-sm"
+                                style="width: 160px; height: 160px; object-fit: cover;" alt="Foto Profil">
+                            <img th:unless="${user.profilePhoto != null}"
+                                src="https://ui-avatars.com/api/?name=User&background=random&size=160"
+                                class="rounded-circle img-thumbnail shadow-sm"
+                                style="width: 160px; height: 160px; object-fit: cover;" alt="Foto Profil Default">
+
+                            <!-- Tombol Upload Overlay -->
+                            <button type="button"
+                                class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle"
+                                style="width: 40px; height: 40px;"
+                                onclick="document.getElementById('photoInput').click()">
+                                <i class="bi bi-camera-fill"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-camera" viewBox="0 0 16 16">
+                                    <path
+                                        d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z" />
+                                    <path
+                                        d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <form th:action="@{/profile/photo}" method="post" enctype="multipart/form-data" id="photoForm"
+                            class="d-none">
+                            <input type="file" name="photo" id="photoInput" accept="image/*"
+                                onchange="document.getElementById('photoForm').submit()">
+                        </form>
+
+                        <h3 class="fw-bold mb-1" th:text="${user.name}">Nama Pengguna</h3>
+                        <p class="text-muted mb-3" th:text="${user.email}">email@example.com</p>
+
+                        <div class="d-flex justify-content-center gap-3 mb-3">
+                            <div class="text-center px-3 border-end">
+                                <h5 class="fw-bold mb-0" th:text="${totalWorkouts}">0</h5>
+                                <small class="text-muted">Total Workout</small>
+                            </div>
+                            <div class="text-center px-3">
+                                <h5 class="fw-bold mb-0" th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">
+                                    01 Jan 2024</h5>
+                                <small class="text-muted">Bergabung</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian 2 & 3: Edit Info & Preferensi -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Edit Profil & Preferensi</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="text-muted border-bottom pb-2 mb-0 w-100">Informasi Dasar</h6>
+                            <button type="button" class="btn btn-sm btn-outline-primary ms-2" id="btnEditProfile"
+                                onclick="toggleEditMode()">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                        </div>
+
+                        <form th:action="@{/profile/update}" th:object="${profileForm}" method="post" id="profileForm">
+                            <fieldset id="profileFieldset" disabled>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="name" class="form-label">Nama Lengkap</label>
+                                        <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                                        <div class="text-danger small" th:if="${#fields.hasErrors('name')}"
+                                            th:errors="*{name}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" th:field="*{email}"
+                                            required>
+                                        <div class="text-danger small" th:if="${#fields.hasErrors('email')}"
+                                            th:errors="*{email}"></div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="bio" class="form-label">Bio Singkat</label>
+                                        <textarea class="form-control" id="bio" th:field="*{bio}" rows="2"
+                                            placeholder="Ceritakan sedikit tentang dirimu..."></textarea>
+                                    </div>
+
+                                    <!-- Preferensi & Target -->
+                                    <div class="col-12 mt-4">
+                                        <h6 class="text-muted border-bottom pb-2 mb-3">Target & Preferensi</h6>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="favoriteWorkoutType" class="form-label">Olahraga Favorit</label>
+                                        <select class="form-select" id="favoriteWorkoutType"
+                                            th:field="*{favoriteWorkoutType}">
+                                            <option value="">Pilih...</option>
+                                            <option value="RUNNING">Lari</option>
+                                            <option value="CYCLING">Bersepeda</option>
+                                            <option value="GYM">Gym / Fitness</option>
+                                            <option value="BODYWEIGHT">Bodyweight</option>
+                                            <option value="PLANK">Plank</option>
+                                            <option value="STRETCHING">Stretching</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="weeklyDurationGoal" class="form-label">Target Mingguan
+                                            (Menit)</label>
+                                        <input type="number" class="form-control" id="weeklyDurationGoal"
+                                            th:field="*{weeklyDurationGoal}" placeholder="Contoh: 150">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="dailyCalorieGoal" class="form-label">Target Kalori Harian</label>
+                                        <input type="number" class="form-control" id="dailyCalorieGoal"
+                                            th:field="*{dailyCalorieGoal}" placeholder="Contoh: 500">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="preferences" class="form-label">Catatan Preferensi Lainnya</label>
+                                        <input type="text" class="form-control" id="preferences"
+                                            th:field="*{preferences}" placeholder="Contoh: Suka latihan pagi hari">
+                                    </div>
+
+                                    <div class="col-12 mt-4 text-end d-none" id="btnSaveContainer">
+                                        <button type="button" class="btn btn-secondary me-2"
+                                            onclick="cancelEditMode()">Batal</button>
+                                        <button type="submit" class="btn btn-primary px-4">
+                                            <i class="bi bi-save me-1"></i> Simpan Perubahan
+                                        </button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Bagian 4: Keamanan -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-danger">Keamanan Akun</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/profile/password}" th:object="${changePasswordForm}" method="post">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label for="oldPassword" class="form-label">Password Lama</label>
+                                    <input type="password" class="form-control" id="oldPassword"
+                                        th:field="*{oldPassword}" required>
+                                    <div class="text-danger small" th:if="${#fields.hasErrors('oldPassword')}"
+                                        th:errors="*{oldPassword}"></div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="newPassword" class="form-label">Password Baru</label>
+                                    <input type="password" class="form-control" id="newPassword"
+                                        th:field="*{newPassword}" required minlength="6">
+                                    <div class="text-danger small" th:if="${#fields.hasErrors('newPassword')}"
+                                        th:errors="*{newPassword}"></div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="confirmPassword" class="form-label">Konfirmasi Password</label>
+                                    <input type="password" class="form-control" id="confirmPassword"
+                                        th:field="*{confirmPassword}" required>
+                                    <div class="text-danger small" th:if="${#fields.hasErrors('confirmPassword')}"
+                                        th:errors="*{confirmPassword}"></div>
+                                </div>
+                                <div class="col-12 text-end mt-3">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        Ubah Password
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 mb-5">
+            <a th:href="@{/}" class="btn btn-link text-decoration-none text-muted">
+                &larr; Kembali ke Dashboard
+            </a>
+        </div>
+    </div>
+
+    <th:block layout:fragment="others-js">
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const btnEditProfile = document.getElementById('btnEditProfile');
+                const btnSaveContainer = document.getElementById('btnSaveContainer');
+                const profileFieldset = document.getElementById('profileFieldset');
+
+                // Expose functions to global scope or attach event listeners directly
+                window.toggleEditMode = function () {
+                    if (profileFieldset && btnEditProfile && btnSaveContainer) {
+                        profileFieldset.disabled = false;
+                        btnEditProfile.classList.add('d-none');
+                        btnSaveContainer.classList.remove('d-none');
+                    }
+                };
+
+                window.cancelEditMode = function () {
+                    if (profileFieldset && btnEditProfile && btnSaveContainer) {
+                        profileFieldset.disabled = true;
+                        btnEditProfile.classList.remove('d-none');
+                        btnSaveContainer.classList.add('d-none');
+                        location.reload();
+                    }
+                };
+            });
+        </script>
+    </th:block>
+</body>
+
+</html>

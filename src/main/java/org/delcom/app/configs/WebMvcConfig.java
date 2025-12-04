@@ -15,8 +15,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/api/**") // Terapkan ke semua endpoint /api
-                .excludePathPatterns("/api/auth/**") // Kecuali endpoint auth
-                .excludePathPatterns("/api/public/**"); // Dan endpoint public
+                .addPathPatterns("/**") // Terapkan ke semua endpoint
+                .excludePathPatterns("/api/auth/**", "/auth/**") // Kecuali endpoint auth
+                .excludePathPatterns("/api/public/**") // Dan endpoint public
+                .excludePathPatterns("/css/**", "/js/**", "/images/**", "/uploads/**", "/webjars/**"); // Dan static
+                                                                                                       // resources
+    }
+
+    @Override
+    public void addResourceHandlers(
+            org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:./uploads/");
     }
 }

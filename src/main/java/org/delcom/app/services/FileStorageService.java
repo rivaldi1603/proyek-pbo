@@ -39,6 +39,29 @@ public class FileStorageService {
         return filename;
     }
 
+    public String storeProfilePhoto(MultipartFile file, UUID userId) throws IOException {
+        // Buat directory jika belum ada
+        Path uploadPath = Paths.get(uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        // Generate filename
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+
+        String filename = "profile_" + userId.toString() + fileExtension;
+
+        // Simpan file
+        Path filePath = uploadPath.resolve(filename);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return filename;
+    }
+
     public boolean deleteFile(String filename) {
         try {
             Path filePath = Paths.get(uploadDir).resolve(filename);

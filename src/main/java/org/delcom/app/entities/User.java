@@ -35,6 +35,24 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "bio", columnDefinition = "TEXT")
+    private String bio;
+
+    @Column(name = "profile_photo")
+    private String profilePhoto;
+
+    @Column(name = "preferences")
+    private String preferences;
+
+    @Column(name = "favorite_workout_type")
+    private String favoriteWorkoutType;
+
+    @Column(name = "weekly_duration_goal")
+    private Integer weeklyDurationGoal;
+
+    @Column(name = "daily_calorie_goal")
+    private Integer dailyCalorieGoal;
+
     // ======= Constructors =======
 
     public User() {
@@ -81,6 +99,54 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
+    }
+
+    public String getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(String preferences) {
+        this.preferences = preferences;
+    }
+
+    public String getFavoriteWorkoutType() {
+        return favoriteWorkoutType;
+    }
+
+    public void setFavoriteWorkoutType(String favoriteWorkoutType) {
+        this.favoriteWorkoutType = favoriteWorkoutType;
+    }
+
+    public Integer getWeeklyDurationGoal() {
+        return weeklyDurationGoal;
+    }
+
+    public void setWeeklyDurationGoal(Integer weeklyDurationGoal) {
+        this.weeklyDurationGoal = weeklyDurationGoal;
+    }
+
+    public Integer getDailyCalorieGoal() {
+        return dailyCalorieGoal;
+    }
+
+    public void setDailyCalorieGoal(Integer dailyCalorieGoal) {
+        this.dailyCalorieGoal = dailyCalorieGoal;
     }
 
     public LocalDateTime getCreatedAt() {

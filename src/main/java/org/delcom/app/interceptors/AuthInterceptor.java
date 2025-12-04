@@ -52,6 +52,14 @@ public class AuthInterceptor implements HandlerInterceptor {
         String rawAuthToken = request.getHeader("Authorization");
         String token = extractToken(rawAuthToken);
 
+        // Jika bukan endpoint API dan tidak ada token, biarkan controller yang
+        // menangani (misal redirect login)
+        if (!request.getRequestURI().startsWith("/api/")) {
+            if (token == null || token.isEmpty()) {
+                return true;
+            }
+        }
+
         // Validasi token
         if (token == null || token.isEmpty()) {
             sendErrorResponse(response, 401, "Token autentikasi tidak ditemukan");

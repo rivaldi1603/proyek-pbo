@@ -30,13 +30,29 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(UUID id, String name, String email) {
+    public User updateUser(UUID id, String name, String email, String bio, String preferences,
+            String favoriteWorkoutType, Integer weeklyDurationGoal, Integer dailyCalorieGoal) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {
             return null;
         }
         user.setName(name);
         user.setEmail(email);
+        user.setBio(bio);
+        user.setPreferences(preferences);
+        user.setFavoriteWorkoutType(favoriteWorkoutType);
+        user.setWeeklyDurationGoal(weeklyDurationGoal);
+        user.setDailyCalorieGoal(dailyCalorieGoal);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateProfilePhoto(UUID id, String photoPath) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return null;
+        }
+        user.setProfilePhoto(photoPath);
         return userRepository.save(user);
     }
 

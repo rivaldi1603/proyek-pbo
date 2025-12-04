@@ -272,7 +272,12 @@ public class UserControllerTests {
                 Mockito.when(userService.updateUser(
                         Mockito.any(UUID.class),
                         Mockito.any(String.class),
-                        Mockito.any(String.class)))
+                        Mockito.any(String.class),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any()))
                         .thenReturn(null);
 
                 ResponseEntity<ApiResponse<User>> result = userController.updateUser(authUser);
@@ -286,7 +291,12 @@ public class UserControllerTests {
                 Mockito.when(userService.updateUser(
                         Mockito.any(UUID.class),
                         Mockito.any(String.class),
-                        Mockito.any(String.class)))
+                        Mockito.any(String.class),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any(),
+                        Mockito.any()))
                         .thenReturn(authUser);
 
                 ResponseEntity<ApiResponse<User>> result = userController.updateUser(authUser);

@@ -138,7 +138,10 @@ public class UserController {
         User updatedUser = userService.updateUser(
                 authUser.getId(),
                 reqUser.getName(),
-                reqUser.getEmail());
+                reqUser.getEmail(),
+                reqUser.getBio(),
+                reqUser.getPreferences(),
+                null, null, null);
         if (updatedUser == null) {
             ApiResponse<User> response = new ApiResponse<>("fail", "User tidak ditemukan", null);
             return ResponseEntity.status(404).body(response);

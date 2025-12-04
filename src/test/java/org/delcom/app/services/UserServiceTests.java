@@ -77,7 +77,8 @@ public class UserServiceTests {
                     .thenReturn(java.util.Optional.of(user));
             Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(user);
 
-            User result = userService.updateUser(user.getId(), "Updated Name", "updated@example.com");
+            User result = userService.updateUser(user.getId(), "Updated Name", "updated@example.com", null, null, null,
+                    null, null);
             assertTrue(result != null);
             assertEquals("Updated Name", result.getName());
             assertEquals("updated@example.com", result.getEmail());
@@ -87,7 +88,8 @@ public class UserServiceTests {
         {
             Mockito.when(userRepository.findById(Mockito.any()))
                     .thenReturn(java.util.Optional.empty());
-            User result = userService.updateUser(java.util.UUID.randomUUID(), "Name", "email@example.com");
+            User result = userService.updateUser(java.util.UUID.randomUUID(), "Name", "email@example.com", null, null,
+                    null, null, null);
             assertTrue(result == null);
         }
 
