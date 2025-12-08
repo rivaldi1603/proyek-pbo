@@ -47,9 +47,7 @@ public class WorkoutService {
         if (typeStr != null && !typeStr.isEmpty()) {
             try {
                 WorkoutType type = WorkoutType.valueOf(typeStr);
-                return workoutRepository
-                        .findByUserIdAndType(userId, type, org.springframework.data.domain.Pageable.unpaged())
-                        .getContent();
+                return workoutRepository.findByUserIdAndTypeOrderByDateDesc(userId, type);
             } catch (IllegalArgumentException e) {
                 // Ignore invalid type and return all
             }
@@ -57,7 +55,7 @@ public class WorkoutService {
         if (search != null && !search.trim().isEmpty()) {
             return workoutRepository.findByKeyword(userId, search);
         }
-        return workoutRepository.findByUserId(userId, org.springframework.data.domain.Pageable.unpaged()).getContent();
+        return workoutRepository.findByUserIdOrderByDateDesc(userId);
     }
 
     public java.util.Map<String, Object> getDashboardStats(UUID userId) {
@@ -139,11 +137,32 @@ public class WorkoutService {
         return (double) (durationMinutes * multiplier);
     }
 
-    public java.util.Map<String, Object> getChartData(UUID userId) {
+    public java.util.Map<String, Object> getChartData(UUID userId, String range) {
         java.util.Map<String, Object> result = new java.util.HashMap<>();
 
         // --- A. Proses Daily Stats (Duration) ---
-        List<Object[]> dailyRows = workoutRepository.findDailyDurationStats(userId);
+        List<Object[]> dailyRows;
+        if (range != null && !range.isEmpty()) {
+            LocalDate startDate = LocalDate.now();
+            if ("week".equalsIgnoreCase(range)) {
+                startDate = startDate.minusWeeks(1);
+            } else if ("month".equalsIgnoreCase(range)) {
+                startDate = startDate.minusMonths(1);
+            } else if ("3months".equalsIgnoreCase(range)) {
+                startDate = startDate.minusMonths(3);
+            } else {
+                // Default or "all"
+                startDate = null;
+            }
+
+            if (startDate != null) {
+                dailyRows = workoutRepository.findDailyDurationStatsAfterDate(userId, startDate);
+            } else {
+                dailyRows = workoutRepository.findDailyDurationStats(userId);
+            }
+        } else {
+            dailyRows = workoutRepository.findDailyDurationStats(userId);
+        }
         List<String> dailyLabels = new java.util.ArrayList<>();
         List<Integer> dailyData = new java.util.ArrayList<>();
 

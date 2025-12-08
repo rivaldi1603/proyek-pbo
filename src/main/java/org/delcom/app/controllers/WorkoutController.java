@@ -165,14 +165,14 @@ public class WorkoutController {
     // API Endpoint untuk Chart Data
     // -------------------------------
     @GetMapping("/stats")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getChartData() {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getChartData(@RequestParam(required = false) String range) {
         // Validasi autentikasi
         if (!authContext.isAuthenticated()) {
             return ResponseEntity.status(403).body(new ApiResponse<>("fail", "User tidak terautentikasi", null));
         }
         User authUser = authContext.getAuthUser();
 
-        Map<String, Object> chartData = workoutService.getChartData(authUser.getId());
+        Map<String, Object> chartData = workoutService.getChartData(authUser.getId(), range);
         return ResponseEntity.ok(new ApiResponse<>(
                 "success",
                 "Data statistik berhasil diambil",

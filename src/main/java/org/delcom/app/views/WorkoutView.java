@@ -151,7 +151,7 @@ public class WorkoutView {
 
         // Redirect dengan pesan sukses
         redirectAttributes.addFlashAttribute("success", "Workout berhasil diperbarui.");
-        return "redirect:/";
+        return "redirect:/activities";
     }
 
     @PostMapping("/delete")

@@ -16,6 +16,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WorkoutRepository extends JpaRepository<Workout, UUID> {
         // 1. Core CRUD & Filter
+        List<Workout> findByUserIdOrderByDateDesc(UUID userId);
+
+        List<Workout> findByUserIdAndTypeOrderByDateDesc(UUID userId, WorkoutType type);
+
         Page<Workout> findByUserId(UUID userId, Pageable pageable);
 
         Page<Workout> findByUserIdAndType(UUID userId, WorkoutType type, Pageable pageable);
@@ -42,6 +46,10 @@ public interface WorkoutRepository extends JpaRepository<Workout, UUID> {
         // 3. Statistik Chart (Group By)
         @Query("SELECT w.date, SUM(w.durationMinutes) FROM Workout w WHERE w.userId = :userId GROUP BY w.date ORDER BY w.date ASC")
         List<Object[]> findDailyDurationStats(@Param("userId") UUID userId);
+
+        @Query("SELECT w.date, SUM(w.durationMinutes) FROM Workout w WHERE w.userId = :userId AND w.date >= :startDate GROUP BY w.date ORDER BY w.date ASC")
+        List<Object[]> findDailyDurationStatsAfterDate(@Param("userId") UUID userId,
+                        @Param("startDate") java.time.LocalDate startDate);
 
         @Query("SELECT w.type, COUNT(w) FROM Workout w WHERE w.userId = :userId GROUP BY w.type")
         List<Object[]> findTypeStats(@Param("userId") UUID userId);

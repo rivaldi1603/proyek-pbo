@@ -10,14 +10,17 @@
 
 <body>
     <div layout:fragment="content" class="mt-3">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
+        <!-- Main Card Container -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <!-- Header -->
+            <div class="card-header d-flex justify-content-between align-items-center bg-white py-3 border-bottom">
                 <div class="d-flex align-items-center">
                     <a th:href="@{/}" class="btn btn-link text-decoration-none me-2 p-0">
-                        <i class="bi bi-arrow-left fs-4"></i>
+                        <i class="bi bi-arrow-left fs-4 text-dark"></i>
                     </a>
                     <h4 class="mb-0 fw-bold text-primary">Aktivitas Fisik</h4>
                 </div>
+                <!-- User Dropdown -->
                 <div class="dropdown">
                     <button
                         class="btn btn-light dropdown-toggle d-flex align-items-center gap-2 border shadow-sm rounded-pill px-3 py-2"
@@ -40,31 +43,58 @@
                     </ul>
                 </div>
             </div>
-            <div class="card-body">
 
-                <div class="row mb-4">
+            <div class="card-body p-4">
+
+                <!-- Stats Cards (Glassmorphism & Gradient Design) -->
+                <div class="row g-4 mb-4">
+                    <!-- Total Latihan -->
                     <div class="col-md-4">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Latihan</h5>
-                                <p class="card-text h2" th:text="${stats.totalWorkouts}">0</p>
+                        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative hover-lift"
+                            style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <div class="card-body p-4 position-relative z-1 text-white">
+                                <h6 class="text-uppercase fw-bold mb-2 opacity-75"
+                                    style="font-size: 0.75rem; letter-spacing: 1px;">Total Latihan</h6>
+                                <h2 class="fw-bold mb-0 display-5" th:text="${stats.totalWorkouts}">0</h2>
+                                <p class="mb-0 mt-2 opacity-75 small"><i class="bi bi-arrow-up-short"></i> Keep it up!
+                                </p>
                             </div>
+                            <!-- Artistic Icon -->
+                            <i class="bi bi-trophy-fill position-absolute text-white"
+                                style="font-size: 8rem; opacity: 0.15; bottom: -20px; right: -20px; transform: rotate(-15deg);"></i>
                         </div>
                     </div>
+                    <!-- Total Durasi -->
                     <div class="col-md-4">
-                        <div class="card bg-success text-white">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Durasi</h5>
-                                <p class="card-text h2"><span th:text="${stats.totalDuration}">0</span> menit</p>
+                        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative hover-lift"
+                            style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <div class="card-body p-4 position-relative z-1 text-white">
+                                <h6 class="text-uppercase fw-bold mb-2 opacity-75"
+                                    style="font-size: 0.75rem; letter-spacing: 1px;">Total Durasi</h6>
+                                <h2 class="fw-bold mb-0 display-5"><span th:text="${stats.totalDuration}">0</span><span
+                                        class="fs-6 fw-normal ms-1">m</span></h2>
+                                <p class="mb-0 mt-2 opacity-75 small"><i class="bi bi-clock-history"></i> Minutes
+                                    trained</p>
                             </div>
+                            <!-- Artistic Icon -->
+                            <i class="bi bi-stopwatch-fill position-absolute text-white"
+                                style="font-size: 8rem; opacity: 0.15; bottom: -20px; right: -20px; transform: rotate(-15deg);"></i>
                         </div>
                     </div>
+                    <!-- Total Kalori -->
                     <div class="col-md-4">
-                        <div class="card bg-warning text-dark">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Kalori</h5>
-                                <p class="card-text h2"><span th:text="${stats.totalCalories}">0</span> kkal</p>
+                        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden position-relative hover-lift"
+                            style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                            <div class="card-body p-4 position-relative z-1 text-white">
+                                <h6 class="text-uppercase fw-bold mb-2 opacity-75"
+                                    style="font-size: 0.75rem; letter-spacing: 1px;">Total Kalori</h6>
+                                <h2 class="fw-bold mb-0 display-5"><span th:text="${stats.totalCalories}">0</span><span
+                                        class="fs-6 fw-normal ms-1">kcal</span></h2>
+                                <p class="mb-0 mt-2 opacity-75 small"><i class="bi bi-fire"></i> Calories burned</p>
                             </div>
+                            <!-- Artistic Icon -->
+                            <i class="bi bi-fire position-absolute text-white"
+                                style="font-size: 8rem; opacity: 0.15; bottom: -20px; right: -20px; transform: rotate(-15deg);"></i>
                         </div>
                     </div>
                 </div>
@@ -72,89 +102,243 @@
                 <div class="row mb-4">
                     <!-- Chart Tren Durasi -->
                     <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-header">
-                                Tren Durasi Harian
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div
+                                class="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold mb-0">Tren Durasi Harian</h5>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary rounded-start-pill"
+                                        onclick="initCharts('week')">Minggu</button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        onclick="initCharts('month')">Bulan</button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        onclick="initCharts('3months')">3 Bulan</button>
+                                    <button type="button" class="btn btn-outline-secondary active rounded-end-pill"
+                                        onclick="initCharts('')">Semua</button>
+                                </div>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body px-4 pb-4">
                                 <canvas id="durationChart"></canvas>
                             </div>
                         </div>
                     </div>
                     <!-- Chart Jenis Workout -->
                     <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                Jenis Workout
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                                <h5 class="fw-bold mb-0">Jenis Workout</h5>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body px-4 pb-4 d-flex align-items-center justify-content-center">
                                 <canvas id="typeChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex mb-2 align-items-center">
-                    <div class="flex-fill">
-                        <h3>Daftar Aktivitas Fisik</h3>
+                <div class="d-flex mb-3 align-items-center justify-content-between">
+                    <div>
+                        <h3 class="fw-bold mb-0">Daftar Aktivitas</h3>
+                        <p class="text-muted small mb-0">Riwayat perjalanan kebugaran Anda</p>
                     </div>
-                    <div class="me-2">
+                    <div class="d-flex gap-2">
                         <form th:action="@{/activities}" method="get" class="d-flex">
-                            <select name="filterType" class="form-select me-2">
+                            <select name="filterType"
+                                class="form-select form-select-sm me-2 rounded-pill border-secondary-subtle"
+                                onchange="this.form.submit()">
                                 <option value="">Semua Jenis</option>
                                 <option th:each="type : ${types}" th:value="${type}" th:text="${type}"
                                     th:selected="${param.filterType != null and param.filterType[0] == type.name()}">
                                 </option>
                             </select>
-                            <button type="submit" class="btn btn-secondary">Filter</button>
                         </form>
-                    </div>
-                    <div>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWorkoutModal">
-                            Tambah Aktivitas
+                        <button class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal"
+                            data-bs-target="#addWorkoutModal">
+                            <i class="bi bi-plus-lg me-1"></i> Tambah
                         </button>
                     </div>
                 </div>
-                <table class="table table-striped">
-                    <tr class="table-light">
-                        <th>No</th>
-                        <th>Jenis</th>
-                        <th>Judul</th>
-                        <th>Tanggal</th>
-                        <th>Durasi (menit)</th>
-                        <th>Kalori</th>
-                        <th>Tindakan</th>
-                    </tr>
 
-                    <tr th:each="workout, status : ${workouts}">
-                        <td th:text="${status.index + 1}"></td>
-                        <td th:text="${workout.type}"></td>
-                        <td th:text="${workout.title}"></td>
-                        <td th:text="${#temporals.format(workout.date, 'd MMMM yyyy')}"></td>
-                        <td th:text="${workout.durationMinutes}"></td>
-                        <td th:text="${workout.caloriesBurned}"></td>
-                        <td>
-                            <a th:href="@{/workouts/{workoutId}(workoutId=${workout.id})}" class="btn btn-sm btn-info">
-                                Detail
-                            </a>
-                            <button th:id="|editWorkoutButton_${workout.id}|"
-                                th:attr="onclick=|prepareEditWorkout(`${workout.id}`, `${workout.title}`, `${workout.description}`, `${workout.durationMinutes}`, `${workout.type}`, `${workout.date}`)|"
-                                class="btn btn-sm btn-warning">
-                                Edit
-                            </button>
-                            <button th:id="|deleteWorkoutButton_${workout.id}|"
-                                th:attr="onclick=|prepareDeleteWorkout(`${workout.id}`, `${workout.title}`)|"
-                                class="btn btn-sm btn-danger">
-                                Hapus
-                            </button>
-                        </td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(workouts)}">
-                        <td colspan="7" class="text-center">
-                            Belum ada data aktivitas fisik yang tersedia.
-                        </td>
-                    </tr>
-                </table>
+                <!-- Fitness Journey Timeline -->
+                <div class="fitness-timeline">
+
+                    <!-- Timeline Item Loop -->
+                    <div class="timeline-item" th:each="workout, iterStat : ${workouts}">
+                        <div class="row g-0">
+                            <!-- 1. Time Column (Left) -->
+                            <div
+                                class="col-md-2 d-flex flex-column align-items-end pe-4 py-3 text-end timeline-date-col">
+                                <!-- Show date only if it's the first item OR different from previous -->
+                                <div
+                                    th:if="${iterStat.index == 0 || !#temporals.format(workout.date, 'yyyy-MM-dd').equals(#temporals.format(workouts[iterStat.index - 1].date, 'yyyy-MM-dd'))}">
+                                    <span class="fw-bold text-primary fs-5"
+                                        th:text="${#temporals.format(workout.date, 'd MMM')}">12 Oct</span>
+                                    <small class="d-block text-muted fw-semibold"
+                                        th:text="${#temporals.format(workout.date, 'yyyy')}">2023</small>
+                                    <small class="text-secondary mt-1"
+                                        th:text="${#temporals.format(workout.date, 'EEEE')}">Monday</small>
+                                </div>
+                            </div>
+
+                            <!-- 2. Line & Dot Column (Center) -->
+                            <div class="col-md-1 position-relative d-flex justify-content-center timeline-line-col">
+                                <!-- Vertical Line -->
+                                <div class="h-100 position-absolute timeline-line"
+                                    style="width: 2px; background-color: #e9ecef; top: 0; bottom: 0;"></div>
+                                <!-- Dot Marker -->
+                                <div class="rounded-circle mt-3 position-relative z-1 shadow-sm timeline-dot"
+                                    style="width: 20px; height: 20px; border: 4px solid #fff;"
+                                    th:classappend="${workout.type.name() == 'RUNNING' ? 'bg-primary' : 
+                                                      (workout.type.name() == 'CYCLING' ? 'bg-purple' : 
+                                                      (workout.type.name() == 'GYM' ? 'bg-danger' : 
+                                                      (workout.type.name() == 'BODYWEIGHT' ? 'bg-warning' : 
+                                                      (workout.type.name() == 'STRETCHING' ? 'bg-success' : 'bg-info'))))}">
+                                </div>
+                            </div>
+
+                            <!-- 3. Card Column (Right) -->
+                            <div class="col-md-9 py-2 ps-2 timeline-card-col">
+                                <div class="card shadow-sm border-0 mb-4 hover-lift rounded-4"
+                                    style="transition: transform 0.2s, box-shadow 0.2s;">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                    <h5 class="card-title fw-bold mb-0 text-dark"
+                                                        th:text="${workout.title}">Morning Run</h5>
+                                                    <!-- Icon based on type -->
+                                                    <i class="bi text-muted"
+                                                        th:classappend="${workout.type.name() == 'RUNNING' ? 'bi-speedometer2' : 
+                                                                        (workout.type.name() == 'CYCLING' ? 'bi-bicycle' : 
+                                                                        (workout.type.name() == 'GYM' ? 'bi-dumbbell' : 
+                                                                        (workout.type.name() == 'STRETCHING' ? 'bi-person-arms-up' : 
+                                                                        (workout.type.name() == 'BODYWEIGHT' ? 'bi-person-standing' : 
+                                                                        (workout.type.name() == 'PLANK' ? 'bi-dash-lg' : 'bi-activity')))))}"></i>
+                                                </div>
+                                                <span class="badge rounded-pill"
+                                                    th:classappend="${workout.type.name() == 'RUNNING' ? 'bg-primary' : 
+                                                                       (workout.type.name() == 'CYCLING' ? 'bg-purple' : 
+                                                                       (workout.type.name() == 'GYM' ? 'bg-danger' : 
+                                                                       (workout.type.name() == 'BODYWEIGHT' ? 'bg-warning text-dark' : 
+                                                                       (workout.type.name() == 'STRETCHING' ? 'bg-success' : 'bg-info text-dark'))))}"
+                                                    th:text="${workout.type}">CARDIO</span>
+                                            </div>
+
+                                            <!-- Explicit Action Buttons -->
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-outline-warning btn-sm rounded-pill px-3"
+                                                    th:attr="onclick=|prepareEditWorkout(`${workout.id}`, `${workout.title}`, `${workout.description}`, `${workout.durationMinutes}`, `${workout.type}`, `${workout.date}`)|">
+                                                    <i class="bi bi-pencil-square me-1"></i> Edit
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                                                    th:attr="onclick=|prepareDeleteWorkout(`${workout.id}`, `${workout.title}`)|">
+                                                    <i class="bi bi-trash me-1"></i> Hapus
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <p class="text-muted small mb-3" th:text="${workout.description}">Description of
+                                            the workout...</p>
+
+                                        <div class="d-flex gap-4 border-top pt-3">
+                                            <!-- Duration with Emoji -->
+                                            <div class="d-flex align-items-center text-secondary">
+                                                <span class="fs-4 me-2">⏱️</span>
+                                                <div>
+                                                    <small class="d-block text-muted"
+                                                        style="font-size: 0.75rem;">Durasi</small>
+                                                    <span class="fw-bold text-dark"><span
+                                                            th:text="${workout.durationMinutes}">45</span> m</span>
+                                                </div>
+                                            </div>
+                                            <!-- Calories with Emoji -->
+                                            <div class="d-flex align-items-center text-secondary">
+                                                <span class="fs-4 me-2">🔥</span>
+                                                <div>
+                                                    <small class="d-block text-muted"
+                                                        style="font-size: 0.75rem;">Kalori</small>
+                                                    <span class="fw-bold text-dark"><span
+                                                            th:text="${workout.caloriesBurned}">300</span> kkal</span>
+                                                </div>
+                                            </div>
+                                            <div class="ms-auto d-flex align-items-center">
+                                                <a th:href="@{/workouts/{workoutId}(workoutId=${workout.id})}"
+                                                    class="btn btn-link text-decoration-none p-0 text-primary fw-semibold"
+                                                    style="font-size: 0.9rem;">
+                                                    Detail <i class="bi bi-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="text-center py-5" th:if="${#lists.isEmpty(workouts)}">
+                        <div class="mb-3">
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center"
+                                style="width: 80px; height: 80px;">
+                                <i class="bi bi-journal-plus fs-1 text-secondary opacity-50"></i>
+                            </div>
+                        </div>
+                        <h5 class="text-muted">Jurnal Latihan Masih Kosong</h5>
+                        <p class="text-secondary small mb-4">Mulailah perjalanan kebugaran Anda hari ini!</p>
+                        <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal"
+                            data-bs-target="#addWorkoutModal">
+                            <i class="bi bi-plus-lg me-2"></i>Catat Latihan Pertama
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Custom CSS for Timeline & Palette -->
+                <style>
+                    .hover-lift:hover {
+                        transform: translateY(-3px);
+                        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .1) !important;
+                    }
+
+                    /* Custom Purple Palette */
+                    .bg-purple {
+                        background-color: #6f42c1 !important;
+                        color: white;
+                    }
+
+                    .text-purple {
+                        color: #6f42c1 !important;
+                    }
+
+                    .btn-outline-purple {
+                        color: #6f42c1;
+                        border-color: #6f42c1;
+                    }
+
+                    .btn-outline-purple:hover {
+                        background-color: #6f42c1;
+                        color: white;
+                    }
+
+                    /* Responsive adjustments */
+                    @media (max-width: 768px) {
+                        .timeline-date-col {
+                            text-align: left !important;
+                            align-items: flex-start !important;
+                            flex-direction: row !important;
+                            gap: 10px;
+                            padding-bottom: 0 !important;
+                        }
+
+                        .timeline-line-col {
+                            display: none !important;
+                        }
+
+                        .timeline-card-col {
+                            padding-left: 12px !important;
+                        }
+                    }
+                </style>
+
             </div>
         </div>
 
@@ -175,13 +359,25 @@
         };
         document.head.appendChild(script);
 
-        function initCharts() {
+        let durationChartInstance = null;
+        let typeChartInstance = null;
+
+        function initCharts(range = '') {
             const ctxDuration = document.getElementById('durationChart');
             const ctxType = document.getElementById('typeChart');
 
-            // Hanya jalan jika elemen canvas ada di halaman
+            // Update active button state
+            if (range !== undefined) {
+                document.querySelectorAll('.btn-group button').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.textContent.toLowerCase().includes(range === '' ? 'semua' : (range === 'week' ? 'minggu' : (range === 'month' ? 'bulan' : '3 bulan')))) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
             if (ctxDuration && ctxType) {
-                fetch('/api/workouts/stats')
+                fetch(`/api/workouts/stats?range=${range}`)
                     .then(response => {
                         if (!response.ok) throw new Error("Gagal mengambil data chart API: " + response.status);
                         return response.json();
@@ -190,22 +386,51 @@
                         if (data.status === 'success') {
                             const stats = data.data;
 
+                            // Destroy existing charts if they exist
+                            if (durationChartInstance) durationChartInstance.destroy();
+                            if (typeChartInstance) typeChartInstance.destroy();
+
                             // 2. Render Grafik Durasi (Line Chart)
-                            new Chart(ctxDuration.getContext('2d'), {
-                                type: 'line', // Pakai Line agar terlihat tren harian
+                            const ctx = ctxDuration.getContext('2d');
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                            gradient.addColorStop(0, 'rgba(13, 110, 253, 0.5)'); // Primary Blue
+                            gradient.addColorStop(1, 'rgba(13, 110, 253, 0.0)');
+
+                            durationChartInstance = new Chart(ctx, {
+                                type: 'line',
                                 data: {
-                                    labels: stats.duration.labels, // Tanggal
+                                    labels: stats.duration.labels,
                                     datasets: [{
-                                        label: 'Total Durasi (Menit)',
-                                        data: stats.duration.data, // Total Durasi
-                                        borderColor: '#0d6efd',
-                                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                                        label: 'Total Durasi',
+                                        data: stats.duration.data,
+                                        borderColor: '#0d6efd', // Primary Blue
+                                        backgroundColor: gradient,
                                         fill: true,
-                                        tension: 0.3
+                                        tension: 0.4,
+                                        pointBackgroundColor: '#fff',
+                                        pointBorderColor: '#0d6efd',
+                                        pointHoverBackgroundColor: '#0d6efd',
+                                        pointHoverBorderColor: '#fff'
                                     }]
                                 },
                                 options: {
                                     responsive: true,
+                                    plugins: {
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function (context) {
+                                                    let label = context.dataset.label || '';
+                                                    if (label) {
+                                                        label += ': ';
+                                                    }
+                                                    if (context.parsed.y !== null) {
+                                                        label += context.parsed.y + ' menit';
+                                                    }
+                                                    return label;
+                                                }
+                                            }
+                                        }
+                                    },
                                     scales: {
                                         y: {
                                             beginAtZero: true,
@@ -219,20 +444,65 @@
                             });
 
                             // 3. Render Grafik Tipe (Doughnut Chart)
-                            new Chart(ctxType.getContext('2d'), {
+                            const totalWorkouts = stats.type.data.reduce((a, b) => a + b, 0);
+
+                            // Map labels to colors based on palette
+                            // Running=Blue, Cycling=Purple, Gym=Red, Bodyweight=Yellow, Stretching=Green, Plank=Cyan
+                            const backgroundColors = stats.type.labels.map(label => {
+                                const l = label.toUpperCase();
+                                if (l === 'RUNNING') return '#0d6efd'; // Primary
+                                if (l === 'CYCLING') return '#6f42c1'; // Purple
+                                if (l === 'GYM') return '#dc3545'; // Danger
+                                if (l === 'BODYWEIGHT') return '#ffc107'; // Warning
+                                if (l === 'STRETCHING') return '#198754'; // Success
+                                if (l === 'PLANK') return '#0dcaf0'; // Info
+                                return '#6c757d'; // Grey default
+                            });
+
+                            typeChartInstance = new Chart(ctxType.getContext('2d'), {
                                 type: 'doughnut',
                                 data: {
-                                    labels: stats.type.labels, // Jenis Latihan
+                                    labels: stats.type.labels,
                                     datasets: [{
-                                        data: stats.type.data, // Jumlah Latihan
-                                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                                        data: stats.type.data,
+                                        backgroundColor: backgroundColors
                                     }]
                                 },
                                 options: {
                                     responsive: true,
                                     plugins: {
                                         legend: {
-                                            position: 'right'
+                                            position: 'right',
+                                            labels: {
+                                                generateLabels: function (chart) {
+                                                    const data = chart.data;
+                                                    if (data.labels.length && data.datasets.length) {
+                                                        return data.labels.map(function (label, i) {
+                                                            const meta = chart.getDatasetMeta(0);
+                                                            const style = meta.controller.getStyle(i);
+                                                            const value = data.datasets[0].data[i];
+                                                            const percentage = totalWorkouts > 0 ? Math.round((value / totalWorkouts) * 100) : 0;
+
+                                                            return {
+                                                                text: `${label} — ${percentage}% (${value} aktivitas)`,
+                                                                fillStyle: style.backgroundColor,
+                                                                strokeStyle: style.borderColor,
+                                                                lineWidth: style.borderWidth,
+                                                                hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
+                                                                index: i
+                                                            };
+                                                        });
+                                                    }
+                                                    return [];
+                                                }
+                                            }
+                                        }
+                                    },
+                                    onClick: (event, elements, chart) => {
+                                        if (elements.length > 0) {
+                                            const index = elements[0].index;
+                                            const label = chart.data.labels[index];
+                                            window.location.href = `/activities?filterType=${label}`;
                                         }
                                     }
                                 }
