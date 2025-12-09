@@ -119,6 +119,19 @@ public class ProfileController {
         return "redirect:/profile";
     }
 
+    @PostMapping("/photo/delete")
+    public String deletePhoto(RedirectAttributes redirectAttributes) {
+        if (!authContext.isAuthenticated()) {
+            return "redirect:/auth/login";
+        }
+        User user = authContext.getAuthUser();
+
+        userService.deleteProfilePhoto(user.getId());
+        redirectAttributes.addFlashAttribute("success", "Foto profil berhasil dihapus.");
+
+        return "redirect:/profile";
+    }
+
     @PostMapping("/password")
     public String changePassword(@Valid @ModelAttribute("changePasswordForm") ChangePasswordForm form,
             BindingResult bindingResult,

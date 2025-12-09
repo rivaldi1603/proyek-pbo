@@ -56,12 +56,15 @@
                                 <h6 class="text-uppercase fw-bold mb-2 opacity-75"
                                     style="font-size: 0.75rem; letter-spacing: 1px;">Total Latihan</h6>
                                 <h2 class="fw-bold mb-0 display-5" th:text="${stats.totalWorkouts}">0</h2>
-                                <p class="mb-0 mt-2 opacity-75 small"><i class="bi bi-arrow-up-short"></i> Keep it up!
+                                <p class="mb-0 mt-2 opacity-75 small"><i class="bi bi-arrow-up-short"></i> Keep it
+                                    up!
                                 </p>
                             </div>
-                            <!-- Artistic Icon -->
-                            <i class="bi bi-trophy-fill position-absolute text-white"
-                                style="font-size: 8rem; opacity: 0.15; bottom: -20px; right: -20px; transform: rotate(-15deg);"></i>
+                            <!-- Artistic Icon (Background) -->
+                            <div class="position-absolute"
+                                style="font-size: 8rem; opacity: 0.25; bottom: -20px; right: -10px; user-select: none;">
+                                🏋️
+                            </div>
                         </div>
                     </div>
                     <!-- Total Durasi -->
@@ -76,9 +79,11 @@
                                 <p class="mb-0 mt-2 opacity-75 small"><i class="bi bi-clock-history"></i> Minutes
                                     trained</p>
                             </div>
-                            <!-- Artistic Icon -->
-                            <i class="bi bi-stopwatch-fill position-absolute text-white"
-                                style="font-size: 8rem; opacity: 0.15; bottom: -20px; right: -20px; transform: rotate(-15deg);"></i>
+                            <!-- Artistic Icon (Background) -->
+                            <div class="position-absolute"
+                                style="font-size: 8rem; opacity: 0.25; bottom: -20px; right: -10px; user-select: none;">
+                                ⏱️
+                            </div>
                         </div>
                     </div>
                     <!-- Total Kalori -->
@@ -92,9 +97,11 @@
                                         class="fs-6 fw-normal ms-1">kcal</span></h2>
                                 <p class="mb-0 mt-2 opacity-75 small"><i class="bi bi-fire"></i> Calories burned</p>
                             </div>
-                            <!-- Artistic Icon -->
-                            <i class="bi bi-fire position-absolute text-white"
-                                style="font-size: 8rem; opacity: 0.15; bottom: -20px; right: -20px; transform: rotate(-15deg);"></i>
+                            <!-- Artistic Icon (Background) -->
+                            <div class="position-absolute"
+                                style="font-size: 8rem; opacity: 0.25; bottom: -20px; right: -10px; user-select: none;">
+                                🔥
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -105,16 +112,19 @@
                         <div class="card border-0 shadow-sm rounded-4">
                             <div
                                 class="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
-                                <h5 class="fw-bold mb-0">Tren Durasi Harian</h5>
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-outline-secondary rounded-start-pill"
-                                        onclick="initCharts('week')">Minggu</button>
-                                    <button type="button" class="btn btn-outline-secondary"
-                                        onclick="initCharts('month')">Bulan</button>
-                                    <button type="button" class="btn btn-outline-secondary"
-                                        onclick="initCharts('3months')">3 Bulan</button>
-                                    <button type="button" class="btn btn-outline-secondary active rounded-end-pill"
-                                        onclick="initCharts('')">Semua</button>
+                                <div>
+                                    <h5 class="fw-bold mb-0">Tren Durasi Harian</h5>
+                                    <small class="text-muted" id="chartDateRange"></small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-filter border-0 px-3 fw-medium"
+                                        onclick="initCharts('week')" data-range="week">Minggu</button>
+                                    <button type="button" class="btn btn-sm btn-filter border-0 px-3 fw-medium"
+                                        onclick="initCharts('month')" data-range="month">Bulan</button>
+                                    <button type="button" class="btn btn-sm btn-filter border-0 px-3 fw-medium"
+                                        onclick="initCharts('3months')" data-range="3months">3 Bulan</button>
+                                    <button type="button" class="btn btn-sm btn-filter border-0 px-3 fw-medium active"
+                                        onclick="initCharts('')" data-range="">Semua</button>
                                 </div>
                             </div>
                             <div class="card-body px-4 pb-4">
@@ -129,7 +139,9 @@
                                 <h5 class="fw-bold mb-0">Jenis Workout</h5>
                             </div>
                             <div class="card-body px-4 pb-4 d-flex align-items-center justify-content-center">
-                                <canvas id="typeChart"></canvas>
+                                <div style="position: relative; height: 320px; width: 320px;">
+                                    <canvas id="typeChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -205,14 +217,14 @@
                                                 <div class="d-flex align-items-center gap-2 mb-1">
                                                     <h5 class="card-title fw-bold mb-0 text-dark"
                                                         th:text="${workout.title}">Morning Run</h5>
-                                                    <!-- Icon based on type -->
-                                                    <i class="bi text-muted"
-                                                        th:classappend="${workout.type.name() == 'RUNNING' ? 'bi-speedometer2' : 
-                                                                        (workout.type.name() == 'CYCLING' ? 'bi-bicycle' : 
-                                                                        (workout.type.name() == 'GYM' ? 'bi-dumbbell' : 
-                                                                        (workout.type.name() == 'STRETCHING' ? 'bi-person-arms-up' : 
-                                                                        (workout.type.name() == 'BODYWEIGHT' ? 'bi-person-standing' : 
-                                                                        (workout.type.name() == 'PLANK' ? 'bi-dash-lg' : 'bi-activity')))))}"></i>
+                                                    <!-- Emoji based on type -->
+                                                    <span class="fs-4"
+                                                        th:text="${workout.type.name() == 'RUNNING' ? '🏃' : 
+                                                                  (workout.type.name() == 'CYCLING' ? '🚴' : 
+                                                                  (workout.type.name() == 'GYM' ? '🏋️' : 
+                                                                  (workout.type.name() == 'STRETCHING' ? '🧘' : 
+                                                                  (workout.type.name() == 'BODYWEIGHT' ? '🤸' : 
+                                                                  (workout.type.name() == 'PLANK' ? '🧱' : '🎯')))))}"></span>
                                                 </div>
                                                 <span class="badge rounded-pill"
                                                     th:classappend="${workout.type.name() == 'RUNNING' ? 'bg-primary' : 
@@ -337,6 +349,27 @@
                             padding-left: 12px !important;
                         }
                     }
+
+
+
+                    /* Filter Buttons */
+                    .btn-filter {
+                        background-color: #f3f3f3 !important;
+                        color: #6c757d;
+                        border-radius: 20px !important;
+                        transition: all 0.2s;
+                    }
+
+                    .btn-filter:hover {
+                        background-color: #e9ecef !important;
+                        color: #495057;
+                    }
+
+                    .btn-filter.active {
+                        background-color: #0d6efd !important;
+                        color: white !important;
+                        box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
+                    }
                 </style>
 
             </div>
@@ -368,13 +401,16 @@
 
             // Update active button state
             if (range !== undefined) {
-                document.querySelectorAll('.btn-group button').forEach(btn => {
+                document.querySelectorAll('.btn-filter').forEach(btn => {
                     btn.classList.remove('active');
-                    if (btn.textContent.toLowerCase().includes(range === '' ? 'semua' : (range === 'week' ? 'minggu' : (range === 'month' ? 'bulan' : '3 bulan')))) {
+                    if (btn.getAttribute('data-range') === range) {
                         btn.classList.add('active');
                     }
                 });
             }
+
+            // Update Date Range Text
+            updateDateRangeText(range);
 
             if (ctxDuration && ctxType) {
                 fetch(`/api/workouts/stats?range=${range}`)
@@ -443,21 +479,35 @@
                                 }
                             });
 
+
                             // 3. Render Grafik Tipe (Doughnut Chart)
                             const totalWorkouts = stats.type.data.reduce((a, b) => a + b, 0);
 
-                            // Map labels to colors based on palette
-                            // Running=Blue, Cycling=Purple, Gym=Red, Bodyweight=Yellow, Stretching=Green, Plank=Cyan
-                            const backgroundColors = stats.type.labels.map(label => {
-                                const l = label.toUpperCase();
-                                if (l === 'RUNNING') return '#0d6efd'; // Primary
-                                if (l === 'CYCLING') return '#6f42c1'; // Purple
-                                if (l === 'GYM') return '#dc3545'; // Danger
-                                if (l === 'BODYWEIGHT') return '#ffc107'; // Warning
-                                if (l === 'STRETCHING') return '#198754'; // Success
-                                if (l === 'PLANK') return '#0dcaf0'; // Info
-                                return '#6c757d'; // Grey default
-                            });
+                            // Modern Palette (Neon/Blue-Purple)
+                            const modernPalette = ['#4361ee', '#3a0ca3', '#7209b7', '#f72585', '#4cc9f0'];
+
+                            // Center Text Plugin
+                            const centerText = {
+                                id: 'centerText',
+                                beforeDraw: function (chart) {
+                                    var width = chart.width,
+                                        height = chart.height,
+                                        ctx = chart.ctx;
+
+                                    ctx.restore();
+                                    var fontSize = (height / 114).toFixed(2);
+                                    ctx.font = "bold " + fontSize + "em sans-serif";
+                                    ctx.textBaseline = "middle";
+                                    ctx.fillStyle = "#333";
+
+                                    var text = totalWorkouts.toString(),
+                                        textX = Math.round((width - ctx.measureText(text).width) / 2),
+                                        textY = height / 2;
+
+                                    ctx.fillText(text, textX, textY);
+                                    ctx.save();
+                                }
+                            };
 
                             typeChartInstance = new Chart(ctxType.getContext('2d'), {
                                 type: 'doughnut',
@@ -465,35 +515,38 @@
                                     labels: stats.type.labels,
                                     datasets: [{
                                         data: stats.type.data,
-                                        backgroundColor: backgroundColors
+                                        backgroundColor: modernPalette,
+                                        borderWidth: 5,
+                                        borderColor: '#ffffff',
+                                        borderRadius: 20,
+                                        hoverOffset: 10,
+                                        cutout: '75%'
                                     }]
                                 },
                                 options: {
                                     responsive: true,
+                                    maintainAspectRatio: false,
                                     plugins: {
                                         legend: {
-                                            position: 'right',
+                                            position: 'bottom',
                                             labels: {
-                                                generateLabels: function (chart) {
-                                                    const data = chart.data;
-                                                    if (data.labels.length && data.datasets.length) {
-                                                        return data.labels.map(function (label, i) {
-                                                            const meta = chart.getDatasetMeta(0);
-                                                            const style = meta.controller.getStyle(i);
-                                                            const value = data.datasets[0].data[i];
-                                                            const percentage = totalWorkouts > 0 ? Math.round((value / totalWorkouts) * 100) : 0;
-
-                                                            return {
-                                                                text: `${label} — ${percentage}% (${value} aktivitas)`,
-                                                                fillStyle: style.backgroundColor,
-                                                                strokeStyle: style.borderColor,
-                                                                lineWidth: style.borderWidth,
-                                                                hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
-                                                                index: i
-                                                            };
-                                                        });
+                                                usePointStyle: true,
+                                                padding: 20,
+                                                font: {
+                                                    size: 12
+                                                }
+                                            }
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function (context) {
+                                                    let label = context.label || '';
+                                                    if (label) {
+                                                        label += ': ';
                                                     }
-                                                    return [];
+                                                    let value = context.raw;
+                                                    let percentage = Math.round((value / totalWorkouts) * 100) + '%';
+                                                    return label + value + ' (' + percentage + ')';
                                                 }
                                             }
                                         }
@@ -505,7 +558,8 @@
                                             window.location.href = `/activities?filterType=${label}`;
                                         }
                                     }
-                                }
+                                },
+                                plugins: [centerText]
                             });
 
                         } else {
@@ -518,6 +572,38 @@
             }
         }
 
+
+        function updateDateRangeText(range) {
+            const dateRangeElement = document.getElementById('chartDateRange');
+            if (!dateRangeElement) return;
+
+            const endDate = new Date();
+            let startDate = new Date();
+            let text = "";
+
+            if (range === 'week') {
+                startDate.setDate(endDate.getDate() - 6);
+            } else if (range === 'month') {
+                startDate.setDate(endDate.getDate() - 29);
+            } else if (range === '3months') {
+                startDate.setDate(endDate.getDate() - 89);
+            } else {
+                dateRangeElement.innerText = "Semua Waktu";
+                return;
+            }
+
+            const optionsFull = { day: 'numeric', month: 'short', year: 'numeric' };
+            const optionsNoYear = { day: 'numeric', month: 'short' };
+
+            const startStr = startDate.getFullYear() === endDate.getFullYear()
+                ? startDate.toLocaleDateString('id-ID', optionsNoYear)
+                : startDate.toLocaleDateString('id-ID', optionsFull);
+
+            const endStr = endDate.toLocaleDateString('id-ID', optionsFull);
+
+            text = `${startStr} – ${endStr}`;
+            dateRangeElement.innerText = text;
+        }
 
         function prepareEditWorkout(id, title, description, duration, type, date) {
             /* Set nilai pada form edit */

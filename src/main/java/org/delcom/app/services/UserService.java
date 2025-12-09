@@ -57,6 +57,16 @@ public class UserService {
     }
 
     @Transactional
+    public User deleteProfilePhoto(UUID id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return null;
+        }
+        user.setProfilePhoto(null);
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public User updatePassword(UUID id, String newPassword) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {

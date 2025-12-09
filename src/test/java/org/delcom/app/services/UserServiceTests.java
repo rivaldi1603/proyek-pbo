@@ -11,6 +11,24 @@ import org.mockito.Mockito;
 
 public class UserServiceTests {
     @Test
+    @DisplayName("Test deleteProfilePhoto")
+    public void testDeleteProfilePhoto() {
+        User user = new User("Test User", "test@example.com", "password");
+        user.setProfilePhoto("profile_photo.jpg");
+
+        UserRepository userRepository = Mockito.mock(UserRepository.class);
+        UserService userService = new UserService(userRepository);
+
+        Mockito.when(userRepository.findById(user.getId())).thenReturn(java.util.Optional.of(user));
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        User result = userService.deleteProfilePhoto(user.getId());
+
+        assertTrue(result != null);
+        assertEquals(null, result.getProfilePhoto());
+    }
+
+    @Test
     @DisplayName("Berbagai pengujian UserService")
     public void testVariousUserService() {
         User user = new User("Test User", "testuser@example.com", "password123");
