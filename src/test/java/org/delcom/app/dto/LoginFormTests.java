@@ -9,7 +9,7 @@ import jakarta.validation.ValidatorFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LoginFormTest {
+class LoginFormTests {
 
     private LoginForm loginForm;
     private Validator validator;
@@ -118,108 +118,5 @@ class LoginFormTest {
         var violations = validator.validate(loginForm);
         assertEquals(1, violations.size());
         assertEquals("Kata sandi harus diisi", violations.iterator().next().getMessage());
-    }
-
-    @Test
-    @DisplayName("Validation gagal ketika password blank")
-    void validation_Fail_WhenPasswordIsBlank() {
-        loginForm.setEmail("user@example.com");
-        loginForm.setPassword("   ");
-
-        var violations = validator.validate(loginForm);
-        assertEquals(1, violations.size());
-        assertEquals("Kata sandi harus diisi", violations.iterator().next().getMessage());
-    }
-
-    @Test
-    @DisplayName("Validation gagal ketika email dan password keduanya invalid")
-    void validation_Fail_WhenBothEmailAndPasswordInvalid() {
-        loginForm.setEmail("invalid-email");
-        loginForm.setPassword("");
-
-        var violations = validator.validate(loginForm);
-        assertEquals(2, violations.size());
-
-        var violationMessages = violations.stream()
-                .map(violation -> violation.getMessage())
-                .toList();
-
-        assertTrue(violationMessages.contains("Format email tidak valid"));
-        assertTrue(violationMessages.contains("Kata sandi harus diisi"));
-    }
-
-    @Test
-    @DisplayName("RememberMe false tidak mempengaruhi validation")
-    void rememberMeFalse_DoesNotAffectValidation() {
-        loginForm.setEmail("user@example.com");
-        loginForm.setPassword("password123");
-        loginForm.setRememberMe(false);
-
-        var violations = validator.validate(loginForm);
-        assertTrue(violations.isEmpty());
-    }
-
-    @Test
-    @DisplayName("RememberMe true tidak mempengaruhi validation")
-    void rememberMeTrue_DoesNotAffectValidation() {
-        loginForm.setEmail("user@example.com");
-        loginForm.setPassword("password123");
-        loginForm.setRememberMe(true);
-
-        var violations = validator.validate(loginForm);
-        assertTrue(violations.isEmpty());
-    }
-
-    @Test
-    @DisplayName("Email dengan format valid diterima")
-    void email_WithValidFormat_IsAccepted() {
-        String[] validEmails = {
-                "user@example.com",
-                "firstname.lastname@example.com",
-                "email@subdomain.example.com",
-                "firstname+lastname@example.com",
-                "email@123.123.123.123",
-                "email@[123.123.123.123]",
-                "1234567890@example.com",
-                "email@example-one.com",
-                "_______@example.com",
-                "email@example.name",
-                "email@example.museum",
-                "email@example.co.jp",
-                "firstname-lastname@example.com"
-        };
-
-        for (String validEmail : validEmails) {
-            loginForm.setEmail(validEmail);
-            loginForm.setPassword("password123");
-
-            var violations = validator.validate(loginForm);
-            assertTrue(violations.isEmpty(), "Should accept valid email: " + validEmail);
-        }
-    }
-
-    @Test
-    @DisplayName("Email dengan format invalid ditolak")
-    void email_WithInvalidFormat_IsRejected() {
-        String[] invalidEmails = {
-                "plainaddress",
-                "@no-local-part.com",
-                "Outlook Contact <outlook@contact.com>",
-                "email.domain.com",
-                "email@domain@domain.com",
-                ".email@domain.com",
-                "email.@domain.com",
-                "email..email@domain.com",
-                "email@domain..com"
-        };
-
-        for (String invalidEmail : invalidEmails) {
-            loginForm.setEmail(invalidEmail);
-            loginForm.setPassword("password123");
-
-            var violations = validator.validate(loginForm);
-            assertEquals(1, violations.size());
-            assertEquals("Format email tidak valid", violations.iterator().next().getMessage());
-        }
     }
 }

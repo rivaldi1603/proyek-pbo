@@ -1,50 +1,44 @@
 package org.delcom.app;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-class ApplicationTest {
+class ApplicationTests {
 
 	@Test
-	void mainMethod_ShouldRunSpringApplication() throws Exception {
-		// Mock SpringApplication.run untuk test main method
+	@DisplayName("Main method should run Spring Application")
+	void mainMethod_ShouldRunSpringApplication() {
+		// Mock SpringApplication.run to prevent actual startup
 		try (var mockedSpring = mockStatic(SpringApplication.class)) {
 			ConfigurableApplicationContext mockContext = mock(ConfigurableApplicationContext.class);
 			mockedSpring.when(() -> SpringApplication.run(Application.class, new String[] {}))
 					.thenReturn(mockContext);
 
-			// Jalankan main method
+			// Execute main method
 			assertDoesNotThrow(() -> Application.main(new String[] {}));
 
-			// Verify SpringApplication.run dipanggil
+			// Verify
 			mockedSpring.verify(() -> SpringApplication.run(Application.class, new String[] {}));
 		}
 	}
 
 	@Test
-	void contextLoads_ShouldNotThrowException() throws Exception {
-		// Test bahwa Spring context bisa dimuat
-		assertDoesNotThrow(() -> {
-			// Test basic class loading
-			Class<?> clazz = Class.forName("org.delcom.app.Application");
-			assertNotNull(clazz);
-		});
+	@DisplayName("Application class should have @SpringBootApplication annotation")
+	void applicationClass_ShouldHaveAnnotation() {
+		assertNotNull(
+				Application.class.getAnnotation(org.springframework.boot.autoconfigure.SpringBootApplication.class));
 	}
 
 	@Test
-	void todoApplication_ShouldHaveSpringBootAnnotation() throws Exception {
-		// Test bahwa class memiliki annotation @SpringBootApplication
-		assertNotNull(Application.class
-				.getAnnotation(org.springframework.boot.autoconfigure.SpringBootApplication.class));
-	}
-
-	@Test
-	void todoApplication_CanBeInstantiated() throws Exception {
-		// Test bahwa kita bisa membuat instance Application
+	@DisplayName("Application class should be instantiable")
+	void applicationClass_ShouldBeInstantiable() {
 		assertDoesNotThrow(() -> {
 			Application app = new Application();
 			assertNotNull(app);

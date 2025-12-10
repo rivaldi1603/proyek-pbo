@@ -63,27 +63,7 @@
                             </div>
                         </div>
 
-                        <!-- Modal Lihat Foto -->
-                        <div class="modal fade" id="viewPhotoModal" tabindex="-1" aria-labelledby="viewPhotoModalLabel"
-                            aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header border-0">
-                                        <h5 class="modal-title" id="viewPhotoModalLabel">Foto Profil</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body text-center p-0 pb-3">
-                                        <img th:if="${user.profilePhoto != null}"
-                                            th:src="@{'/uploads/' + ${user.profilePhoto}}" class="img-fluid"
-                                            alt="Foto Profil">
-                                        <img th:unless="${user.profilePhoto != null}"
-                                            src="https://ui-avatars.com/api/?name=User&background=random&size=500"
-                                            class="img-fluid" alt="Foto Profil Default">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
 
                         <form th:action="@{/profile/photo}" method="post" enctype="multipart/form-data" id="photoForm"
                             class="d-none">
@@ -241,6 +221,25 @@
             <a th:href="@{/activities}" class="btn btn-link text-decoration-none text-muted p-0">
                 &larr; Kembali ke Activity
             </a>
+        </div>
+        <!-- Modal Lihat Foto (Moved here to avoid positioning issues) -->
+        <div class="modal fade" id="viewPhotoModal" tabindex="-1" aria-labelledby="viewPhotoModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="viewPhotoModalLabel">Foto Profil</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center p-0 pb-3">
+                        <img th:if="${user.profilePhoto != null}" th:src="@{'/uploads/' + ${user.profilePhoto}}"
+                            class="img-fluid" alt="Foto Profil">
+                        <img th:unless="${user.profilePhoto != null}"
+                            src="https://ui-avatars.com/api/?name=User&background=random&size=500" class="img-fluid"
+                            alt="Foto Profil Default">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

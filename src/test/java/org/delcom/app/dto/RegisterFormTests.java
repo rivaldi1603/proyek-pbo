@@ -9,7 +9,7 @@ import jakarta.validation.ValidatorFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RegisterFormTest {
+class RegisterFormTests {
 
     private RegisterForm registerForm;
     private Validator validator;

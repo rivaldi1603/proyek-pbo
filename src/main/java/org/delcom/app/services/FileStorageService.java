@@ -18,9 +18,8 @@ public class FileStorageService {
 
     public String storeFile(MultipartFile file, UUID todoId) throws IOException {
         // Buat directory jika belum ada
-        // FORCE absolute path relative to project root
-        String projectDir = System.getProperty("user.dir");
-        Path uploadPath = Paths.get(projectDir).resolve("uploads");
+        // Buat directory jika belum ada
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
 
         System.out.println("DEBUG: Storing file to " + uploadPath.toAbsolutePath());
 
@@ -103,8 +102,7 @@ public class FileStorageService {
     }
 
     public Path loadFile(String filename) {
-        String projectDir = System.getProperty("user.dir");
-        return Paths.get(projectDir).resolve("uploads").resolve(filename);
+        return Paths.get(uploadDir).resolve(filename).normalize();
     }
 
     public boolean fileExists(String filename) {

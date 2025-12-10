@@ -1,32 +1,32 @@
 package org.delcom.app.configs;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.delcom.app.entities.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class AuthContextTests {
+import static org.junit.jupiter.api.Assertions.*;
+
+class AuthContextTests {
+
     @Test
     @DisplayName("Membuat instance kelas AuthContext dengan benar")
-    void testMembuatInstanceKelasAuthContextDenganBenar() {
+    void testAuthContextMethods() {
         AuthContext authContext = new AuthContext();
 
-        // Menguji dengan data user tersedia
-        {
-            User user = new User("Abdullah Ubaid", "test@example.com", "123456");
-            authContext.setAuthUser(user);
+        // Awalnya null
+        assertNull(authContext.getAuthUser());
+        assertFalse(authContext.isAuthenticated());
 
-            assertEquals(user, authContext.getAuthUser());
-            assertTrue(authContext.isAuthenticated());
-        }
+        // Set user
+        User user = new User("Abdullah Ubaid", "test@example.com", "123456");
+        authContext.setAuthUser(user);
 
-        // Menguji dengan data user kosong
-        {
-            authContext.setAuthUser(null);
-            assertTrue(!authContext.isAuthenticated());
-        }
+        assertEquals(user, authContext.getAuthUser());
+        assertTrue(authContext.isAuthenticated());
 
+        // Set null lagi
+        authContext.setAuthUser(null);
+        assertNull(authContext.getAuthUser());
+        assertFalse(authContext.isAuthenticated());
     }
 }

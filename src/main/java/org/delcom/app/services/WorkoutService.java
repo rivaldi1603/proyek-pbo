@@ -33,7 +33,7 @@ public class WorkoutService {
         WorkoutType type;
         try {
             type = WorkoutType.valueOf(typeStr);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             e.printStackTrace();
             type = WorkoutType.RUNNING; // Default
         }

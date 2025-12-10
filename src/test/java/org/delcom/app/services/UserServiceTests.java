@@ -1,133 +1,182 @@
 package org.delcom.app.services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.util.Optional;
+import java.util.UUID;
 
 import org.delcom.app.entities.User;
 import org.delcom.app.repositories.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-public class UserServiceTests {
+@ExtendWith(MockitoExtension.class)
+class UserServiceTests {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private UserService userService;
+
     @Test
-    @DisplayName("Test deleteProfilePhoto")
-    public void testDeleteProfilePhoto() {
+    @DisplayName("createUser should save and return user")
+    void createUser() {
         User user = new User("Test User", "test@example.com", "password");
-        user.setProfilePhoto("profile_photo.jpg");
 
-        UserRepository userRepository = Mockito.mock(UserRepository.class);
-        UserService userService = new UserService(userRepository);
+        when(userRepository.save(any(User.class))).thenReturn(user);
 
-        Mockito.when(userRepository.findById(user.getId())).thenReturn(java.util.Optional.of(user));
-        Mockito.when(userRepository.save(Mockito.any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+        User result = userService.createUser("Test User", "test@example.com", "password");
 
-        User result = userService.deleteProfilePhoto(user.getId());
-
-        assertTrue(result != null);
-        assertEquals(null, result.getProfilePhoto());
+        assertNotNull(result);
+        assertEquals("Test User", result.getName());
+        assertEquals("test@example.com", result.getEmail());
     }
 
     @Test
-    @DisplayName("Berbagai pengujian UserService")
-    public void testVariousUserService() {
-        User user = new User("Test User", "testuser@example.com", "password123");
+    @DisplayName("getUserByEmail should return user if found")
+    void getUserByEmail_Found() {
+        User user = new User("User", "email@test.com", "pass");
+        when(userRepository.findFirstByEmail("email@test.com")).thenReturn(Optional.of(user));
 
-        // Membuat user repository palsu
-        UserRepository userRepository = Mockito.mock(UserRepository.class);
+        User result = userService.getUserByEmail("email@test.com");
 
-        // Membuat instance UserService dengan repository palsu
-        UserService userService = new UserService(userRepository);
-        assertTrue(userService != null);
+        assertNotNull(result);
+        assertEquals("email@test.com", result.getEmail());
+    }
 
-        // Menguji createUser
-        {
-            Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(user);
+    @Test
+    @DisplayName("getUserByEmail should return null if not found")
+    void getUserByEmail_NotFound() {
+        when(userRepository.findFirstByEmail("404@test.com")).thenReturn(Optional.empty());
 
-            User result = userService.createUser(user.getName(), user.getEmail(), user.getPassword());
-            assertTrue(result != null);
-            assertEquals(user.getName(), result.getName());
-            assertEquals(user.getEmail(), result.getEmail());
-            assertEquals(user.getPassword(), result.getPassword());
-        }
+        User result = userService.getUserByEmail("404@test.com");
 
-        // Menguji getUserByEmail dengan email yang ada
-        {
-            Mockito.when(userRepository.findFirstByEmail(user.getEmail()))
-                    .thenReturn(java.util.Optional.of(user));
+        assertNull(result);
+    }
 
-            User result = userService.getUserByEmail(user.getEmail());
-            assertTrue(result != null);
-            assertEquals(user.getEmail(), result.getEmail());
-        }
+    @Test
+    @DisplayName("getUserById should return user if found")
+    void getUserById_Found() {
+        UUID id = UUID.randomUUID();
+        User user = new User();
+        user.setId(id);
 
-        // Menguji getUserByEmail dengan email yang tidak ada
-        {
-            Mockito.when(userRepository.findFirstByEmail("notfound@example.com"))
-                    .thenReturn(java.util.Optional.empty());
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
 
-            User result = userService.getUserByEmail("notfound@example.com");
-            assertTrue(result == null);
-        }
+        User result = userService.getUserById(id);
 
-        // Menguji getUserById dengan ID yang ada
-        {
-            Mockito.when(userRepository.findById(user.getId()))
-                    .thenReturn(java.util.Optional.of(user));
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+    }
 
-            User result = userService.getUserById(user.getId());
-            assertTrue(result != null);
-            assertEquals(user.getId(), result.getId());
-        }
+    @Test
+    @DisplayName("getUserById should return null if not found")
+    void getUserById_NotFound() {
+        UUID id = UUID.randomUUID();
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        // Menguji getUserById dengan ID yang tidak ada
-        {
-            Mockito.when(userRepository.findById(Mockito.any()))
-                    .thenReturn(java.util.Optional.empty());
+        User result = userService.getUserById(id);
 
-            User result = userService.getUserById(java.util.UUID.randomUUID());
-            assertTrue(result == null);
-        }
+        assertNull(result);
+    }
 
-        // Menguji updateUser dengan ID yang ada
-        {
-            Mockito.when(userRepository.findById(user.getId()))
-                    .thenReturn(java.util.Optional.of(user));
-            Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(user);
+    @Test
+    @DisplayName("updateUser should update fields and save")
+    void updateUser_Success() {
+        UUID id = UUID.randomUUID();
+        User existingUser = new User("Old", "old@test.com", "pass");
+        existingUser.setId(id);
 
-            User result = userService.updateUser(user.getId(), "Updated Name", "updated@example.com", null, null, null,
-                    null, null);
-            assertTrue(result != null);
-            assertEquals("Updated Name", result.getName());
-            assertEquals("updated@example.com", result.getEmail());
-        }
+        when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        // Menguji updateUser dengan ID yang tidak ada
-        {
-            Mockito.when(userRepository.findById(Mockito.any()))
-                    .thenReturn(java.util.Optional.empty());
-            User result = userService.updateUser(java.util.UUID.randomUUID(), "Name", "email@example.com", null, null,
-                    null, null, null);
-            assertTrue(result == null);
-        }
+        User result = userService.updateUser(id, "New", "new@test.com", "Bio", "Prefs", "GYM", 100, 2000);
 
-        // Menguji updatePassword dengan ID yang ada
-        {
-            Mockito.when(userRepository.findById(user.getId()))
-                    .thenReturn(java.util.Optional.of(user));
-            Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(user);
+        assertNotNull(result);
+        assertEquals("New", result.getName());
+        assertEquals("new@test.com", result.getEmail());
+        assertEquals("Bio", result.getBio());
+        assertEquals("Prefs", result.getPreferences());
+        assertEquals("GYM", result.getFavoriteWorkoutType());
+        assertEquals(100, result.getWeeklyDurationGoal());
+        assertEquals(2000, result.getDailyCalorieGoal());
+    }
 
-            User result = userService.updatePassword(user.getId(), "newpassword123");
-            assertTrue(result != null);
-            assertEquals("newpassword123", result.getPassword());
-        }
+    @Test
+    @DisplayName("updateUser should return null if user not found")
+    void updateUser_NotFound() {
+        UUID id = UUID.randomUUID();
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        // Menguji updatePassword dengan ID yang tidak ada
-        {
-            Mockito.when(userRepository.findById(Mockito.any()))
-                    .thenReturn(java.util.Optional.empty());
-            User result = userService.updatePassword(java.util.UUID.randomUUID(), "newpassword123");
-            assertTrue(result == null);
-        }
+        User result = userService.updateUser(id, "New", "new@test.com", null, null, null, null, null);
+
+        assertNull(result);
+    }
+
+    @Test
+    @DisplayName("updateProfilePhoto should update photo path")
+    void updateProfilePhoto_Success() {
+        UUID id = UUID.randomUUID();
+        User user = new User();
+        user.setId(id);
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        User result = userService.updateProfilePhoto(id, "new-photo.jpg");
+
+        assertNotNull(result);
+        assertEquals("new-photo.jpg", result.getProfilePhoto());
+    }
+
+    @Test
+    @DisplayName("deleteProfilePhoto should set photo path to null")
+    void deleteProfilePhoto_Success() {
+        UUID id = UUID.randomUUID();
+        User user = new User();
+        user.setId(id);
+        user.setProfilePhoto("existing.jpg");
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        User result = userService.deleteProfilePhoto(id);
+
+        assertNotNull(result);
+        assertNull(result.getProfilePhoto());
+    }
+
+    @Test
+    @DisplayName("updatePassword should update password")
+    void updatePassword_Success() {
+        UUID id = UUID.randomUUID();
+        User user = new User();
+        user.setId(id);
+        user.setPassword("oldPass");
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        User result = userService.updatePassword(id, "newPass");
+
+        assertNotNull(result);
+        assertEquals("newPass", result.getPassword());
+    }
+
+    @Test
+    void testCornerUserNotFoundCases() {
+        UUID id = UUID.randomUUID();
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertNull(userService.updateProfilePhoto(id, "path"));
+        assertNull(userService.deleteProfilePhoto(id));
+        assertNull(userService.updatePassword(id, "pass"));
     }
 }

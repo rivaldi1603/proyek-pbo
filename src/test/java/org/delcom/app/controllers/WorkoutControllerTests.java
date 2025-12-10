@@ -1,285 +1,516 @@
 package org.delcom.app.controllers;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import org.delcom.app.configs.ApiResponse;
+import org.delcom.app.configs.AuthContext;
+import org.delcom.app.dto.WorkoutForm;
+import org.delcom.app.entities.User;
+import org.delcom.app.entities.Workout;
+import org.delcom.app.services.WorkoutService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.delcom.app.configs.ApiResponse;
-import org.delcom.app.configs.AuthContext;
-import org.delcom.app.entities.Workout;
-import org.delcom.app.entities.User;
-import org.delcom.app.enums.WorkoutType;
-import org.delcom.app.services.WorkoutService;
-import org.delcom.app.dto.WorkoutForm;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
-public class WorkoutControllerTests {
-    @Test
-    @DisplayName("Pengujian untuk controller Workout")
-    void testWorkoutController() throws Exception {
-        // Buat random UUID
-        UUID userId = UUID.randomUUID();
-        UUID workoutId = UUID.randomUUID();
-        UUID nonexistentWorkoutId = UUID.randomUUID();
-        LocalDate date = LocalDate.now();
+@ExtendWith(MockitoExtension.class)
+class WorkoutControllerTests {
 
-        // Membuat dummy data
-        Workout workout = new Workout(userId, "Lari Pagi", "Lari keliling komplek", 30, 200.0, date,
-                WorkoutType.RUNNING, null);
-        workout.setId(workoutId);
+    @Mock
+    private WorkoutService workoutService;
 
-        // Membuat mock ServiceRepository
-        // Buat mock
-        WorkoutService workoutService = Mockito.mock(WorkoutService.class);
+    @Mock
+    private AuthContext authContext;
 
-        // Membuat instance controller
-        WorkoutController workoutController = new WorkoutController(workoutService);
-        assert (workoutController != null);
+    @InjectMocks
+    private WorkoutController workoutController;
 
-        workoutController.authContext = new AuthContext();
-        User authUser = new User("Test User", "testuser@example.com");
+    private User authUser;
+    private UUID userId;
+
+    @BeforeEach
+    void setUp() {
+        workoutController.authContext = authContext;
+        userId = UUID.randomUUID();
+        authUser = new User("Test User", "test@example.com");
         authUser.setId(userId);
-
-        // Menguji method createWorkout
-        {
-            // Data tidak valid
-            {
-                List<WorkoutForm> invalidWorkouts = List.of(
-                        // Title Null
-                        createWorkoutForm(null, "Deskripsi valid", 30, "RUNNING", date),
-                        // Title Empty
-                        createWorkoutForm("", "Deskripsi valid", 30, "RUNNING", date),
-                        // Description Null
-                        createWorkoutForm("Judul valid", null, 30, "RUNNING", date),
-                        // Description Empty
-                        createWorkoutForm("Judul valid", "", 30, "RUNNING", date),
-                        // Duration Null
-                        createWorkoutForm("Judul valid", "Deskripsi valid", null, "RUNNING", date),
-                        // Duration Invalid
-                        createWorkoutForm("Judul valid", "Deskripsi valid", 0, "RUNNING", date),
-                        // Type Null
-                        createWorkoutForm("Judul valid", "Deskripsi valid", 30, null, date),
-                        // Type Empty
-                        createWorkoutForm("Judul valid", "Deskripsi valid", 30, "", date),
-                        // Date Null
-                        createWorkoutForm("Judul valid", "Deskripsi valid", 30, "RUNNING", null));
-
-                ResponseEntity<ApiResponse<Map<String, UUID>>> result;
-                for (WorkoutForm itemWorkout : invalidWorkouts) {
-                    result = workoutController.createWorkout(itemWorkout);
-                    assert (result != null);
-                    assert (result.getStatusCode().is4xxClientError());
-                    assert (result.getBody().getStatus().equals("fail"));
-                }
-            }
-
-            // Tidak terautentikasi untuk menambahkan workout
-            {
-                workoutController.authContext.setAuthUser(null);
-                WorkoutForm form = createWorkoutForm("Title", "Desc", 30, "RUNNING", date);
-
-                var result = workoutController.createWorkout(form);
-                assert (result != null);
-                assert (result.getStatusCode().is4xxClientError());
-                assert (result.getBody().getStatus().equals("fail"));
-            }
-
-            // Berhasil menambahkan workout
-            {
-                workoutController.authContext.setAuthUser(authUser);
-                WorkoutForm form = createWorkoutForm("Title", "Desc", 30, "RUNNING", date);
-
-                Workout createdWorkout = new Workout(userId, "Title", "Desc", 30, 300.0, date, WorkoutType.RUNNING,
-                        null);
-                createdWorkout.setId(workoutId);
-                when(workoutService.createWorkout(any(UUID.class), any(String.class), any(String.class),
-                        any(Integer.class), any(String.class), any(LocalDate.class)))
-                        .thenReturn(createdWorkout);
-
-                var result = workoutController.createWorkout(form);
-                assert (result != null);
-                assert (result.getBody().getStatus().equals("success"));
-            }
-        }
-
-        // Menguji method getAllWorkouts
-        {
-            // Tidak terautentikasi untuk getAllWorkouts
-            {
-                workoutController.authContext.setAuthUser(null);
-
-                var result = workoutController.getAllWorkouts(null);
-                assert (result != null);
-                assert (result.getStatusCode().is4xxClientError());
-                assert (result.getBody().getStatus().equals("fail"));
-            }
-
-            // Menguji getAllWorkouts dengan search null
-            {
-                workoutController.authContext.setAuthUser(authUser);
-
-                List<Workout> dummyResponse = List.of(workout);
-                when(workoutService.getAllWorkouts(any(UUID.class), any(String.class), any()))
-                        .thenReturn(dummyResponse);
-                var result = workoutController.getAllWorkouts(null);
-                assert (result != null);
-                assert (result.getBody().getStatus().equals("success"));
-            }
-        }
-
-        // Menguji method getWorkoutById
-        {
-            // Tidak terautentikasi untuk getWorkoutById
-            {
-                workoutController.authContext.setAuthUser(null);
-
-                var result = workoutController.getWorkoutById(workoutId);
-                assert (result != null);
-                assert (result.getStatusCode().is4xxClientError());
-                assert (result.getBody().getStatus().equals("fail"));
-            }
-
-            workoutController.authContext.setAuthUser(authUser);
-
-            // Menguji getWorkoutById dengan ID yang ada
-            {
-                when(workoutService.getWorkoutById(any(UUID.class), any(UUID.class))).thenReturn(workout);
-                var result = workoutController.getWorkoutById(workoutId);
-                assert (result != null);
-                assert (result.getBody().getStatus().equals("success"));
-                assert (result.getBody().getData().get("workout").getId().equals(workoutId));
-            }
-
-            // Menguji getWorkoutById dengan ID yang tidak ada
-            {
-                when(workoutService.getWorkoutById(any(UUID.class), any(UUID.class))).thenReturn(null);
-                var result = workoutController.getWorkoutById(nonexistentWorkoutId);
-                assert (result != null);
-                assert (result.getBody().getStatus().equals("fail"));
-            }
-
-        }
-
-        // Menguji method updateWorkout
-        {
-            // Data tidak valid
-            {
-                List<WorkoutForm> invalidWorkouts = List.of(
-                        // Title Null
-                        createWorkoutForm(null, "Deskripsi valid", 30, "RUNNING", date),
-                        // Title Kosong
-                        createWorkoutForm("", "Deskripsi valid", 30, "RUNNING", date),
-                        // Description Null
-                        createWorkoutForm("Judul valid", null, 30, "RUNNING", date),
-                        // Description Kosong
-                        createWorkoutForm("Judul valid", "", 30, "RUNNING", date),
-                        // Duration Null
-                        createWorkoutForm("Judul valid", "Deskripsi valid", null, "RUNNING", date),
-                        // Duration Invalid
-                        createWorkoutForm("Judul valid", "Deskripsi valid", 0, "RUNNING", date),
-                        // Type Null
-                        createWorkoutForm("Judul valid", "Deskripsi valid", 30, null, date),
-                        // Type Empty
-                        createWorkoutForm("Judul valid", "Deskripsi valid", 30, "", date),
-                        // Date Null
-                        createWorkoutForm("Judul valid", "Deskripsi valid", 30, "RUNNING", null));
-
-                for (WorkoutForm itemWorkout : invalidWorkouts) {
-                    var result = workoutController.updateWorkout(workoutId, itemWorkout);
-                    assert (result != null);
-                    assert (result.getStatusCode().is4xxClientError());
-                    assert (result.getBody().getStatus().equals("fail"));
-                }
-            }
-
-            // Tidak terautentikasi untuk updateWorkout
-            {
-                workoutController.authContext.setAuthUser(null);
-                WorkoutForm form = createWorkoutForm("Title", "Desc", 30, "RUNNING", date);
-
-                var result = workoutController.updateWorkout(workoutId, form);
-                assert (result != null);
-                assert (result.getStatusCode().is4xxClientError());
-                assert (result.getBody().getStatus().equals("fail"));
-            }
-
-            workoutController.authContext.setAuthUser(authUser);
-
-            // Memperbarui workout dengan ID tidak ada
-            {
-                when(workoutService.updateWorkout(any(UUID.class), any(UUID.class), any(String.class),
-                        any(String.class), any(Integer.class), any(String.class), any(LocalDate.class)))
-                        .thenReturn(null);
-                WorkoutForm form = createWorkoutForm("Updated Title", "Updated Desc", 45, "RUNNING", date);
-
-                var result = workoutController.updateWorkout(nonexistentWorkoutId, form);
-                assert (result != null);
-                assert (result.getBody().getStatus().equals("fail"));
-            }
-
-            // Memperbarui workout dengan ID ada
-            {
-                Workout updatedWorkout = new Workout(userId, "Updated Title", "Updated Desc", 45, 300.0, date,
-                        WorkoutType.RUNNING, null);
-                updatedWorkout.setId(workoutId);
-                when(workoutService.updateWorkout(any(UUID.class), any(UUID.class), any(String.class),
-                        any(String.class), any(Integer.class), any(String.class), any(LocalDate.class)))
-                        .thenReturn(updatedWorkout);
-
-                WorkoutForm form = createWorkoutForm("Updated Title", "Updated Desc", 45, "RUNNING", date);
-                var result = workoutController.updateWorkout(workoutId, form);
-                assert (result != null);
-                assert (result.getBody().getStatus().equals("success"));
-            }
-        }
-
-        // // Menguji method deleteWorkout
-        {
-            // Tidak terautentikasi untuk deleteWorkout
-            {
-                workoutController.authContext.setAuthUser(null);
-
-                var result = workoutController.deleteWorkout(workoutId);
-                assert (result != null);
-                assert (result.getStatusCode().is4xxClientError());
-                assert (result.getBody().getStatus().equals("fail"));
-            }
-
-            workoutController.authContext.setAuthUser(authUser);
-
-            // Menguji deleteWorkout dengan ID yang tidak ada
-            {
-                when(workoutService.deleteWorkout(any(UUID.class), any(UUID.class))).thenReturn(false);
-                var result = workoutController.deleteWorkout(nonexistentWorkoutId);
-                assert (result != null);
-                assert (result.getBody().getStatus().equals("fail"));
-            }
-
-            // Menguji deleteWorkout dengan ID yang ada
-            {
-                when(workoutService.deleteWorkout(any(UUID.class), any(UUID.class))).thenReturn(true);
-                var result = workoutController.deleteWorkout(workoutId);
-                assert (result != null);
-                assert (result.getBody().getStatus().equals("success"));
-            }
-        }
     }
 
-    private WorkoutForm createWorkoutForm(String title, String description, Integer durationMinutes, String type,
-            LocalDate date) {
+    @Test
+    @DisplayName("createWorkout: Returns 403 if unauthenticated")
+    void createWorkout_Unauthenticated() {
+        when(authContext.isAuthenticated()).thenReturn(false);
         WorkoutForm form = new WorkoutForm();
-        form.setTitle(title);
-        form.setDescription(description);
-        form.setDurationMinutes(durationMinutes);
-        form.setType(type);
-        form.setDate(date);
-        return form;
+        form.setTitle("Valid Title");
+        form.setDescription("Valid Desc");
+        form.setDurationMinutes(30);
+        form.setType("RUNNING");
+        form.setDate(LocalDate.now());
+
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertEquals("fail", response.getBody().getStatus());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation error (Bad Request)")
+    void createWorkout_ValidationError() {
+        // No auth context set needed as validation happens first usually?
+        // Logic shows validation first.
+        WorkoutForm form = new WorkoutForm();
+        // Title missing
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("fail", response.getBody().getStatus());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Success")
+    void createWorkout_Success() {
+        when(authContext.isAuthenticated()).thenReturn(true);
+        when(authContext.getAuthUser()).thenReturn(authUser);
+
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Run");
+        form.setDescription("Run track");
+        form.setDurationMinutes(30);
+        form.setType("RUNNING");
+        form.setDate(LocalDate.now());
+
+        Workout created = new Workout();
+        created.setId(UUID.randomUUID());
+
+        when(workoutService.createWorkout(eq(userId), eq("Run"), eq("Run track"), eq(30), eq("RUNNING"),
+                any(LocalDate.class)))
+                .thenReturn(created);
+
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("success", response.getBody().getStatus());
+        assertEquals(created.getId(), response.getBody().getData().get("id"));
+    }
+
+    @Test
+    @DisplayName("getAllWorkouts: Success")
+    void getAllWorkouts_Success() {
+        when(authContext.isAuthenticated()).thenReturn(true);
+        when(authContext.getAuthUser()).thenReturn(authUser);
+
+        List<Workout> workouts = List.of(new Workout());
+        when(workoutService.getAllWorkouts(userId, null, null)).thenReturn(workouts);
+
+        ResponseEntity<ApiResponse<Map<String, List<Workout>>>> response = workoutController.getAllWorkouts(null);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(workouts, response.getBody().getData().get("workouts"));
+    }
+
+    @Test
+    @DisplayName("getWorkoutById: Not Found")
+    void getWorkoutById_NotFound() {
+        when(authContext.isAuthenticated()).thenReturn(true);
+        when(authContext.getAuthUser()).thenReturn(authUser);
+
+        UUID workoutId = UUID.randomUUID();
+        when(workoutService.getWorkoutById(userId, workoutId)).thenReturn(null);
+
+        ResponseEntity<ApiResponse<Map<String, Workout>>> response = workoutController.getWorkoutById(workoutId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("getWorkoutById: Success")
+    void getWorkoutById_Success() {
+        when(authContext.isAuthenticated()).thenReturn(true);
+        when(authContext.getAuthUser()).thenReturn(authUser);
+
+        UUID workoutId = UUID.randomUUID();
+        Workout workout = new Workout();
+        workout.setId(workoutId);
+        when(workoutService.getWorkoutById(userId, workoutId)).thenReturn(workout);
+
+        ResponseEntity<ApiResponse<Map<String, Workout>>> response = workoutController.getWorkoutById(workoutId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(workout, response.getBody().getData().get("workout"));
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Success")
+    void updateWorkout_Success() {
+        when(authContext.isAuthenticated()).thenReturn(true);
+        when(authContext.getAuthUser()).thenReturn(authUser);
+
+        UUID workoutId = UUID.randomUUID();
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Updated");
+        form.setDescription("Updated Desc");
+        form.setDurationMinutes(60);
+        form.setType("GYM");
+        form.setDate(LocalDate.now());
+
+        Workout updated = new Workout();
+        updated.setId(workoutId);
+
+        when(workoutService.updateWorkout(eq(userId), eq(workoutId), anyString(), anyString(), anyInt(), anyString(),
+                any(LocalDate.class)))
+                .thenReturn(updated);
+
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(workoutId, form);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("success", response.getBody().getStatus());
+    }
+
+    @Test
+    @DisplayName("deleteWorkout: Success")
+    void deleteWorkout_Success() {
+        when(authContext.isAuthenticated()).thenReturn(true);
+        when(authContext.getAuthUser()).thenReturn(authUser);
+
+        UUID workoutId = UUID.randomUUID();
+        when(workoutService.deleteWorkout(userId, workoutId)).thenReturn(true);
+
+        ResponseEntity<ApiResponse<String>> response = workoutController.deleteWorkout(workoutId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("getChartData: Success")
+    void getChartData_Success() {
+        when(authContext.isAuthenticated()).thenReturn(true);
+        when(authContext.getAuthUser()).thenReturn(authUser);
+
+        Map<String, Object> mockChart = Map.of("data", "someData");
+        when(workoutService.getChartData(userId, "week")).thenReturn(mockChart);
+
+        ResponseEntity<ApiResponse<Map<String, Object>>> response = workoutController.getChartData("week");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(mockChart, response.getBody().getData());
+    }
+
+    @Test
+    @DisplayName("getAllWorkouts: Unauthenticated")
+    void getAllWorkouts_Unauthenticated() {
+        when(authContext.isAuthenticated()).thenReturn(false);
+        ResponseEntity<ApiResponse<Map<String, List<Workout>>>> response = workoutController.getAllWorkouts(null);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("getWorkoutById: Unauthenticated")
+    void getWorkoutById_Unauthenticated() {
+        when(authContext.isAuthenticated()).thenReturn(false);
+        ResponseEntity<ApiResponse<Map<String, Workout>>> response = workoutController
+                .getWorkoutById(UUID.randomUUID());
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Unauthenticated")
+    void updateWorkout_Unauthenticated() {
+        when(authContext.isAuthenticated()).thenReturn(false);
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("T");
+        form.setDescription("D");
+        form.setDurationMinutes(1);
+        form.setType("T");
+        form.setDate(LocalDate.now());
+
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Validation Fails")
+    void updateWorkout_ValidationFails() {
+        // Missing title
+        WorkoutForm form = new WorkoutForm();
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Not Found")
+    void updateWorkout_NotFound() {
+        when(authContext.isAuthenticated()).thenReturn(true);
+        when(authContext.getAuthUser()).thenReturn(authUser);
+
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("T");
+        form.setDescription("D");
+        form.setDurationMinutes(1);
+        form.setType("T");
+        form.setDate(LocalDate.now());
+
+        when(workoutService.updateWorkout(any(), any(), anyString(), anyString(), anyInt(), anyString(), any()))
+                .thenReturn(null);
+
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("deleteWorkout: Unauthenticated")
+    void deleteWorkout_Unauthenticated() {
+        when(authContext.isAuthenticated()).thenReturn(false);
+        ResponseEntity<ApiResponse<String>> response = workoutController.deleteWorkout(UUID.randomUUID());
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("deleteWorkout: Not Found")
+    void deleteWorkout_NotFound() {
+        when(authContext.isAuthenticated()).thenReturn(true);
+        when(authContext.getAuthUser()).thenReturn(authUser);
+        when(workoutService.deleteWorkout(any(), any())).thenReturn(false);
+
+        ResponseEntity<ApiResponse<String>> response = workoutController.deleteWorkout(UUID.randomUUID());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("getChartData: Unauthenticated")
+    void getChartData_Unauthenticated() {
+        when(authContext.isAuthenticated()).thenReturn(false);
+        ResponseEntity<ApiResponse<Map<String, Object>>> response = workoutController.getChartData("week");
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation Fails - Missing Title")
+    void createWorkout_MissingTitle() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle(null);
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data title tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation Fails - Missing Description")
+    void createWorkout_MissingDescription() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription(null);
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data description tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation Fails - Missing Duration")
+    void createWorkout_MissingDuration() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(null);
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data durationMinutes tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation Fails - Missing Type")
+    void createWorkout_MissingType() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(10);
+        form.setType(null);
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data type tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation Fails - Missing Date")
+    void createWorkout_MissingDate() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(10);
+        form.setType("RUNNING");
+        form.setDate(null);
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data date tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation Fails - Empty Title")
+    void createWorkout_EmptyTitle() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("");
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data title tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation Fails - Empty Description")
+    void createWorkout_EmptyDescription() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("");
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data description tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation Fails - Empty Type")
+    void createWorkout_EmptyType() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(10);
+        form.setType("");
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data type tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Validation Fails - Empty Title")
+    void updateWorkout_EmptyTitle() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("");
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data title tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Validation Fails - Empty Description")
+    void updateWorkout_EmptyDescription() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("");
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data description tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Validation Fails - Empty Type")
+    void updateWorkout_EmptyType() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(10);
+        form.setType("");
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data type tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("createWorkout: Validation Fails - Negative Duration")
+    void createWorkout_NegativeDuration() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(-10);
+        form.setType("RUNNING");
+        form.setDate(LocalDate.now());
+
+        ResponseEntity<ApiResponse<Map<String, UUID>>> response = workoutController.createWorkout(form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data durationMinutes tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Validation Fails - Negative Duration")
+    void updateWorkout_NegativeDuration() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(-5);
+        form.setType("RUNNING");
+        form.setDate(LocalDate.now());
+
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data durationMinutes tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Validation Fails - Null Description")
+    void updateWorkout_NullDescription() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription(null); // Null
+        form.setDurationMinutes(30);
+        form.setType("RUNNING");
+        form.setDate(LocalDate.now());
+
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data description tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Validation Fails - Null Duration")
+    void updateWorkout_NullDuration() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(null); // Null
+        form.setType("RUNNING");
+        form.setDate(LocalDate.now());
+
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data durationMinutes tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Validation Fails - Null Type")
+    void updateWorkout_NullType() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(30);
+        form.setType(null); // Null
+        form.setDate(LocalDate.now());
+
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data type tidak valid", response.getBody().getMessage());
+    }
+
+    @Test
+    @DisplayName("updateWorkout: Validation Fails - Null Date")
+    void updateWorkout_NullDate() {
+        WorkoutForm form = new WorkoutForm();
+        form.setTitle("Title");
+        form.setDescription("Desc");
+        form.setDurationMinutes(30);
+        form.setType("RUNNING");
+        form.setDate(null); // Null
+
+        ResponseEntity<ApiResponse<Workout>> response = workoutController.updateWorkout(UUID.randomUUID(), form);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Data date tidak valid", response.getBody().getMessage());
     }
 }
