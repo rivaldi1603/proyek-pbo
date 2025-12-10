@@ -12,9 +12,9 @@
 	</parent>
 
 	<groupId>org.delcom</groupId>
-	<artifactId>spring-todos</artifactId>
+	<artifactId>spring-workout</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Spring Todos</name>
+	<name>Spring Workout</name>
 	<description>Todo Application with Spring Boot</description>
 
 	<properties>
