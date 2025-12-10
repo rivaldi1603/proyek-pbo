@@ -17,6 +17,7 @@
   <link rel="stylesheet" th:href="@{/assets/vendor/bootstrap-5.3.8-dist/css/bootstrap.min.css}" />
 
   <link rel="stylesheet" th:href="@{/assets/vendor/sweetalert2/dist/sweetalert2.min.css}" />
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
 
   <!-- Slot untuk CSS tambahan -->
   <th:block layout:fragment="others-css"></th:block>
@@ -29,7 +30,7 @@
   </style>
 </head>
 
-<body class="bg-light">
+<body>
   <!-- Slot untuk konten -->
   <div layout:fragment="content" class="container-fluid">
     <!-- Konten akan diisi oleh child templates -->

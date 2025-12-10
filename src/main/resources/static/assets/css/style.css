@@ -1,0 +1,109 @@
+/* Modern Color Palette & Variables */
+:root {
+    --primary-gradient: linear-gradient(135deg, #b8c1e7 0%, #f6f6f6 100%);
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+    --input-radius: 10px;
+}
+
+body {
+    background: var(--primary-gradient);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Override default bg-light if it's conflicting, but usually body background handles it if specificity is high enough. 
+   If base.html has class="bg-light", we might need !important or to remove the class. 
+   Let's target body specifically. */
+body.bg-light {
+    background: var(--primary-gradient) !important;
+}
+
+/* Glassmorphism Card Style */
+.card {
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 15px;
+    border: var(--glass-border);
+    border: none;
+    /* Remove default bootstrap border */
+}
+
+.card-body {
+    padding: 2.5rem !important;
+}
+
+/* Typography */
+h5 {
+    font-weight: 700;
+    color: #4a5568;
+}
+
+.text-muted {
+    color: #718096 !important;
+}
+
+/* Form Controls */
+.form-control {
+    border-radius: var(--input-radius);
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: none;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+/* Buttons */
+.btn-primary {
+    background: #667eea;
+    border: none;
+    border-radius: var(--input-radius);
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+    background: #5a67d8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Links */
+a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    color: #5a67d8;
+    text-decoration: underline;
+}
+
+/* Logo Animation */
+img[alt="Logo"] {
+    transition: transform 0.5s ease;
+}
+
+img[alt="Logo"]:hover {
+    transform: rotate(10deg) scale(1.1);
+}
+
+/* Auth Card */
+.auth-card {
+    max-width: 420px;
+    width: 100%;
+}
+
+/* Ensure content fills height for centering if needed, 
+   but we will handle positioning in the template classes. */
