@@ -18,7 +18,12 @@ public class FileStorageService {
 
     public String storeFile(MultipartFile file, UUID todoId) throws IOException {
         // Buat directory jika belum ada
-        Path uploadPath = Paths.get(uploadDir);
+        // FORCE absolute path relative to project root
+        String projectDir = System.getProperty("user.dir");
+        Path uploadPath = Paths.get(projectDir).resolve("uploads");
+
+        System.out.println("DEBUG: Storing file to " + uploadPath.toAbsolutePath());
+
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
@@ -28,13 +33,27 @@ public class FileStorageService {
         String fileExtension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
             fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        } else {
+            String contentType = file.getContentType();
+            if (contentType != null) {
+                if (contentType.equals("image/jpeg"))
+                    fileExtension = ".jpg";
+                else if (contentType.equals("image/png"))
+                    fileExtension = ".png";
+                else if (contentType.equals("image/webp"))
+                    fileExtension = ".webp";
+                else if (contentType.equals("image/gif"))
+                    fileExtension = ".gif";
+            }
         }
 
         String filename = "cover_" + todoId.toString() + fileExtension;
 
         // Simpan file
         Path filePath = uploadPath.resolve(filename);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        try (java.io.InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+        }
 
         return filename;
     }
@@ -51,6 +70,18 @@ public class FileStorageService {
         String fileExtension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
             fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        } else {
+            String contentType = file.getContentType();
+            if (contentType != null) {
+                if (contentType.equals("image/jpeg"))
+                    fileExtension = ".jpg";
+                else if (contentType.equals("image/png"))
+                    fileExtension = ".png";
+                else if (contentType.equals("image/webp"))
+                    fileExtension = ".webp";
+                else if (contentType.equals("image/gif"))
+                    fileExtension = ".gif";
+            }
         }
 
         String filename = "profile_" + userId.toString() + fileExtension;
@@ -72,7 +103,8 @@ public class FileStorageService {
     }
 
     public Path loadFile(String filename) {
-        return Paths.get(uploadDir).resolve(filename);
+        String projectDir = System.getProperty("user.dir");
+        return Paths.get(projectDir).resolve("uploads").resolve(filename);
     }
 
     public boolean fileExists(String filename) {

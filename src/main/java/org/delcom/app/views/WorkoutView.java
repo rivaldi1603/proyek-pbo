@@ -295,19 +295,42 @@ public class WorkoutView {
     }
 
     @GetMapping("/image/{filename:.+}")
-    @ResponseBody
-    public Resource getImageByFilename(@PathVariable String filename) {
+    public org.springframework.http.ResponseEntity<byte[]> getImageByFilename(@PathVariable String filename) {
         try {
             Path file = fileStorageService.loadFile(filename);
-            Resource resource = new UrlResource(file.toUri());
+            System.out.println("DEBUG: Requesting image " + filename + " at path " + file.toAbsolutePath());
 
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                return null;
+            if (!java.nio.file.Files.exists(file)) {
+                System.out.println("DEBUG: File path does not exist: " + file.toAbsolutePath());
+                return org.springframework.http.ResponseEntity.notFound().build();
             }
-        } catch (Exception e) {
-            return null;
+
+            String contentType = "application/octet-stream";
+            try {
+                contentType = java.nio.file.Files.probeContentType(file);
+                if (contentType == null) {
+                    if (filename.toLowerCase().endsWith(".jpg") || filename.toLowerCase().endsWith(".jpeg"))
+                        contentType = "image/jpeg";
+                    else if (filename.toLowerCase().endsWith(".png"))
+                        contentType = "image/png";
+                    else if (filename.toLowerCase().endsWith(".gif"))
+                        contentType = "image/gif";
+                    else if (filename.toLowerCase().endsWith(".webp"))
+                        contentType = "image/webp";
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+
+            byte[] imageBytes = java.nio.file.Files.readAllBytes(file);
+            System.out.println("DEBUG: Successfully read " + imageBytes.length + " bytes.");
+
+            return org.springframework.http.ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                    .body(imageBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return org.springframework.http.ResponseEntity.internalServerError().build();
         }
     }
 

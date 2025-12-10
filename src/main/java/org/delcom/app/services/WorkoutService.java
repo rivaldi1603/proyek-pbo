@@ -235,8 +235,9 @@ public class WorkoutService {
         if (workoutOpt.isPresent()) {
             Workout workout = workoutOpt.get();
 
-            // Hapus file image lama jika ada
-            if (workout.getImagePath() != null) {
+            // Hapus file image lama jika ada, TAPI jangan hapus jika nama filenya sama
+            // (overwrite case)
+            if (workout.getImagePath() != null && !workout.getImagePath().equals(imageFilename)) {
                 fileStorageService.deleteFile(workout.getImagePath());
             }
 
