@@ -53,4 +53,8 @@ public interface WorkoutRepository extends JpaRepository<Workout, UUID> {
 
         @Query("SELECT w.type, COUNT(w) FROM Workout w WHERE w.userId = :userId GROUP BY w.type")
         List<Object[]> findTypeStats(@Param("userId") UUID userId);
+
+        @Query("SELECT w.type, COUNT(w) FROM Workout w WHERE w.userId = :userId AND w.date >= :startDate GROUP BY w.type")
+        List<Object[]> findTypeStatsAfterDate(@Param("userId") UUID userId,
+                        @Param("startDate") java.time.LocalDate startDate);
 }

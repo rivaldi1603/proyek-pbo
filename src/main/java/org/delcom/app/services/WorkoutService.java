@@ -141,9 +141,9 @@ public class WorkoutService {
         java.util.Map<String, Object> result = new java.util.HashMap<>();
 
         // --- A. Proses Daily Stats (Duration) ---
-        List<Object[]> dailyRows;
+        LocalDate startDate = null;
         if (range != null && !range.isEmpty()) {
-            LocalDate startDate = LocalDate.now();
+            startDate = LocalDate.now();
             if ("week".equalsIgnoreCase(range)) {
                 startDate = startDate.minusWeeks(1);
             } else if ("month".equalsIgnoreCase(range)) {
@@ -154,12 +154,11 @@ public class WorkoutService {
                 // Default or "all"
                 startDate = null;
             }
+        }
 
-            if (startDate != null) {
-                dailyRows = workoutRepository.findDailyDurationStatsAfterDate(userId, startDate);
-            } else {
-                dailyRows = workoutRepository.findDailyDurationStats(userId);
-            }
+        List<Object[]> dailyRows;
+        if (startDate != null) {
+            dailyRows = workoutRepository.findDailyDurationStatsAfterDate(userId, startDate);
         } else {
             dailyRows = workoutRepository.findDailyDurationStats(userId);
         }
@@ -191,7 +190,12 @@ public class WorkoutService {
         result.put("duration", durationChartMap);
 
         // --- B. Proses Type Stats (Count) ---
-        List<Object[]> typeRows = workoutRepository.findTypeStats(userId);
+        List<Object[]> typeRows;
+        if (startDate != null) {
+            typeRows = workoutRepository.findTypeStatsAfterDate(userId, startDate);
+        } else {
+            typeRows = workoutRepository.findTypeStats(userId);
+        }
         List<String> typeLabels = new java.util.ArrayList<>();
         List<Integer> typeData = new java.util.ArrayList<>();
 
