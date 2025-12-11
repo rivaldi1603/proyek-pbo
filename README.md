@@ -2,13 +2,9 @@
 
 ## Logs
 
-### 04-11-2025
+### 04-12-2025
 
 - Memperbarui kebutuhan paket
-
-### 29-10-2025
-
-- Melakukan inisialisasi proyek
 
 
 ## Syntax
@@ -17,7 +13,7 @@
 
 command: `mvn clean install`
 
-#### Windows: elakukan build ulang proyek dan membuka hasil laporan
+#### Windows: melakukan build ulang proyek dan membuka hasil laporan
 command with open jacoco: `mvn clean test; start target\site\jacoco\index.html`
 
 #### Mac: melakukan build ulang proyek dan membuka hasil laporan
